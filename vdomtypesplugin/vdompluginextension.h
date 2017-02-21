@@ -45,10 +45,14 @@ public:
 
 private:
     void registerProperty(const QString &name);
+    static QMap<QString, QString> makePropertyGroups();
+    static QMap<QString, bool> makeInvisibleProperties();
 
     VdomTypesWidget *myWidget;
     QMap<QString, int> indexes;
     QMap<int, QString> names;
+    static QMap<QString, QString> propertyGroups;
+    static QMap<QString, bool> invisibleProperties;
 };
 
 #endif // VDOMPLUGINEXTENSION_H

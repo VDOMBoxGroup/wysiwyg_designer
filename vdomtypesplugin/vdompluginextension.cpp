@@ -4,6 +4,9 @@
 #include <QVariant>
 #include <QMetaProperty>
 
+QMap<QString, QString> VdomPluginPropertySheetExtension::propertyGroups = VdomPluginPropertySheetExtension::makePropertyGroups();
+QMap<QString, bool> VdomPluginPropertySheetExtension::invisibleProperties = VdomPluginPropertySheetExtension::makeInvisibleProperties();
+
 VdomPluginExtensionFactory::VdomPluginExtensionFactory(QExtensionManager *parent): QExtensionFactory(parent)
 {
 }
@@ -19,16 +22,47 @@ QObject* VdomPluginExtensionFactory::createExtension(QObject *object, const QStr
     }
 }
 
+QMap<QString, QString> VdomPluginPropertySheetExtension::makePropertyGroups()
+{
+    QMap<QString, QString> ret;
+    // TODO: maybe assign better names
+    ret["1"] = "Standard";
+    ret["2"] = "Extended";
+    ret["3"] = "Advanced";
+    ret["4"] = "Specific";
+    return ret;
+}
+
+QMap<QString, bool> VdomPluginPropertySheetExtension::makeInvisibleProperties()
+{
+    QMap<QString, bool> ret;
+    ret["top"] = true;
+    ret["left"] = true;
+    ret["width"] = true;
+    ret["height"] = true;
+    return ret;
+}
+
 VdomPluginPropertySheetExtension::VdomPluginPropertySheetExtension(VdomTypesWidget *widget, QObject *parent) : QObject(parent)
 {
     myWidget = widget;
+    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
 
     registerProperty("objectName");
     registerProperty("geometry");
+
+    for (QMap<QString, AttributeInfo>::const_iterator i=vdomType->attributes.begin(); i!=vdomType->attributes.end(); i++) {
+        registerProperty(i->attrName);
+        const char* propName = i->attrName.toLatin1().constData();
+        if (myWidget->property(propName).isValid())
+            continue;
+        myWidget->setProperty(propName, QVariant(QString("")));
+    }
 }
 
 void VdomPluginPropertySheetExtension::registerProperty(const QString &name)
 {
+    Q_ASSERT(indexes.find(name) == indexes.end());
     int index = indexes.count();
     indexes[name] = index;
     names[index] = name;
@@ -53,9 +87,15 @@ QString VdomPluginPropertySheetExtension::propertyName(int index) const
     else return "";
 }
 
-QString VdomPluginPropertySheetExtension::propertyGroup(int /*index*/) const
+QString VdomPluginPropertySheetExtension::propertyGroup(int index) const
 {
-    return "standard";
+    QMap<QString, AttributeInfo>::iterator i = myWidget->getVdomType()->attributes.find(propertyName(index));
+    if (i != myWidget->getVdomType()->attributes.end()) {
+        QMap<QString, QString>::const_iterator j = propertyGroups.find(i->colorGroup);
+        if (j != propertyGroups.end())
+            return *j;
+    }
+    return "Standard";
 }
 
 void VdomPluginPropertySheetExtension::setPropertyGroup(int /*index*/, const QString &/*group*/)
@@ -72,8 +112,14 @@ bool VdomPluginPropertySheetExtension::reset(int /*index*/)
     return false;
 }
 
-bool VdomPluginPropertySheetExtension::isVisible(int /*index*/) const
+bool VdomPluginPropertySheetExtension::isVisible(int index) const
 {
+    QString name = propertyName(index);
+    if (invisibleProperties.find(name) != invisibleProperties.end())
+        return false;
+    QMap<QString, AttributeInfo>::iterator i = myWidget->getVdomType()->attributes.find(name);
+    if (i != myWidget->getVdomType()->attributes.end() && !(i->visible))
+        return false;
     return true;
 }
 
@@ -93,16 +139,27 @@ void VdomPluginPropertySheetExtension::setAttribute(int /*index*/, bool /*b*/)
 QVariant VdomPluginPropertySheetExtension::property(int index) const
 {
     QString name = propertyName(index);
-    int realIndex = myWidget->metaObject()->indexOfProperty(name.toLatin1().data());
+    const char *propName = name.toLatin1().data();
+    QVariant value = myWidget->property(propName);
+    if (value.isValid())
+        return value;
+    int realIndex = myWidget->metaObject()->indexOfProperty(propName);
     return myWidget->metaObject()->property(realIndex).read(myWidget);
 }
 
 void VdomPluginPropertySheetExtension::setProperty(int index, const QVariant &value)
 {
+    //qDebug(QString("setProperty %1 %2 %3\n").arg(index).arg(value.toString()).arg((int)value.type()).toLatin1().constData());
     QString name = propertyName(index);
     if (name.isEmpty())
         return;
-    int realIndex = myWidget->metaObject()->indexOfProperty(name.toLatin1().data());
+    const char *propName = name.toLatin1().data();
+    QVariant v = myWidget->property(propName);
+    if (v.isValid()) {
+        myWidget->setProperty(propName, value);
+        return;
+    }
+    int realIndex = myWidget->metaObject()->indexOfProperty(propName);
     myWidget->metaObject()->property(realIndex).write(myWidget, value);
 }
 
