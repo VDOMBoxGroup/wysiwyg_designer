@@ -1,16 +1,17 @@
 #include "vdomtypesplugin.h"
-#include "vdomtypeswidget.h"
 #include "vdompluginextension.h"
+#include "path.h"
+#include "vdomclassfactory.h"
 #include <QtPlugin>
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QExtensionFactory>
 #include <QtDesigner/QDesignerPropertySheetExtension>
 
-VdomTypesPlugin::VdomTypesPlugin(QObject *parent)
-    : QObject(parent)
+VdomTypesPlugin::VdomTypesPlugin(const VdomTypeInfo &typeInfo, const VDOMWidget &widget, QObject *parent)
+    : QObject(parent), initialized(false), vdomType(new VdomTypeInfo(typeInfo))
 {
-    initialized = false;
+    className = widget.metaObject()->className();
 }
 
 void VdomTypesPlugin::initialize(QDesignerFormEditorInterface *core)
@@ -34,18 +35,19 @@ bool VdomTypesPlugin::isInitialized() const
 
 QWidget *VdomTypesPlugin::createWidget(QWidget *parent)
 {
-    QWidget *widget = new VdomTypesWidget(parent);
-    return widget;
+    VDOMWidget *w = createVdomWidget(vdomType->typeName, parent);
+    w->setVdomType(vdomType);
+    return w;
 }
 
 QString VdomTypesPlugin::name() const
 {
-    return "VdomTypesWidget";
+    return className;
 }
 
 QString VdomTypesPlugin::group() const
 {
-    return "VDOM Types";
+    return vdomType->category;
 }
 
 QIcon VdomTypesPlugin::icon() const
@@ -55,39 +57,39 @@ QIcon VdomTypesPlugin::icon() const
 
 QString VdomTypesPlugin::toolTip() const
 {
-    return "test tooltip";
+    return vdomType->typeName;
 }
 
 QString VdomTypesPlugin::whatsThis() const
 {
-    return "test whatsthis";
+    return vdomType->typeName;
 }
 
 bool VdomTypesPlugin::isContainer() const
 {
-    return false;
+    return (vdomType->container == "2" || vdomType->container == "3");
 }
 
 QString VdomTypesPlugin::domXml() const
 {
-    return "<ui language=\"c++\">\n"
-           " <widget class=\"VdomTypesWidget\" name=\"test\">\n"
-           "  <property name=\"geometry\">\n"
-           "   <rect>\n"
-           "    <x>0</x>\n"
-           "    <y>0</y>\n"
-           "    <width>100</width>\n"
-           "    <height>100</height>\n"
-           "   </rect>\n"
-           "  </property>\n"
-           "  <property name=\"toolTip\" >\n"
-           "   <string>123</string>\n"
-           "  </property>\n"
-           "  <property name=\"whatsThis\" >\n"
-           "   <string>456</string>\n"
-           "  </property>\n"
-           " </widget>\n"
-           "</ui>\n";
+    return QString("<ui language=\"c++\" displayname=\"%1\">\n"
+                   " <widget class=\"%2\" name=\"%3\">\n"
+                   "  <property name=\"geometry\">\n"
+                   "   <rect>\n"
+                   "    <x>0</x>\n"
+                   "    <y>0</y>\n"
+                   "    <width>100</width>\n"
+                   "    <height>100</height>\n"
+                   "   </rect>\n"
+                   "  </property>\n"
+                   "  <property name=\"toolTip\" >\n"
+                   "   <string>%3</string>\n"
+                   "  </property>\n"
+                   "  <property name=\"whatsThis\" >\n"
+                   "   <string>%3</string>\n"
+                   "  </property>\n"
+                   " </widget>\n"
+                   "</ui>\n").arg(vdomType->displayName, className, vdomType->typeName);
 }
 
 QString VdomTypesPlugin::includeFile() const
@@ -95,4 +97,29 @@ QString VdomTypesPlugin::includeFile() const
     return "";
 }
 
-Q_EXPORT_PLUGIN2(customwidgetplugin, VdomTypesPlugin)
+// ---
+
+VdomTypesCollection::VdomTypesCollection(QObject *parent) : QObject(parent)
+{
+    QList<VdomTypeInfo> types = LoadTypes(defaultPath(defaultTypesFileName));
+
+    qDebug("Loaded %d types", types.size());
+
+    for (int i=0; i<types.size(); i++) {
+        const VdomTypeInfo &typeInfo = types.at(i);
+        if (typeInfo.container == "3")  // exclude top-level containers
+            continue;
+        VDOMWidget *w = createVdomWidget(typeInfo.typeName, NULL);
+        if (w) {
+            widgets.append(new VdomTypesPlugin(typeInfo, *w, this));
+            delete w;
+        }
+    }
+}
+
+QList<QDesignerCustomWidgetInterface*> VdomTypesCollection::customWidgets() const
+{
+    return widgets;
+}
+
+Q_EXPORT_PLUGIN2(customwidgetsplugin, VdomTypesCollection)

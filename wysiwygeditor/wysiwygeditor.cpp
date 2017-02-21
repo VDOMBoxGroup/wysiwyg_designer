@@ -1,12 +1,11 @@
 #include "wysiwygeditor.h"
-#include <QCoreApplication>
-#include <QFileInfo>
-#include <QDir>
+#include "widgetsfile.h"
+#include "path.h"
 
 static const QString defaultContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<ui version=\"4.0\">"
 " <class>Container</class>"
-" <widget class=\"QWidget\" name=\"Container\">"
+" <widget class=\"Container\" name=\"container\">"
 "  <property name=\"geometry\">"
 "   <rect>"
 "    <x>0</x>"
@@ -15,23 +14,10 @@ static const QString defaultContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?
 "    <height>300</height>"
 "   </rect>"
 "  </property>"
-"  <property name=\"windowTitle\">"
-"   <string></string>"
-"  </property>"
 " </widget>"
 " <resources/>"
 " <connections/>"
 "</ui>";
-
-// default paths relative to the application module directory
-static const QString defaultWidgetsFileName = "/widgets.xml";
-static const QString defaultPluginPath = "/designer";
-
-QString defaultPath(const QString &p)
-{
-    static QString appPath = QFileInfo(QCoreApplication::applicationFilePath()).absoluteDir().path();
-    return appPath + p;
-}
 
 WysiwygEditor::WysiwygEditor() : designer(NULL)
 {
@@ -47,9 +33,12 @@ void WysiwygEditor::initialize(QWidget *parent, const QString &widgetsFileName, 
 {
     Q_ASSERT(!designer);
     Q_ASSERT(parent);
+
+    QString widgetsFile = widgetsFileName.isEmpty() ? defaultPath(defaultWidgetsFileName) : widgetsFileName;
+    WriteWidgetsFile(widgetsFile, CreateWidgetsXml());
+
     designer = new Designer();
-    designer->initialize(parent, this,
-                         widgetsFileName.isEmpty() ? defaultPath(defaultWidgetsFileName) : widgetsFileName,
+    designer->initialize(parent, this, widgetsFile,
                          pluginPath.isEmpty() ? defaultPath(defaultPluginPath) : pluginPath);
 }
 

@@ -1,8 +1,13 @@
 #ifndef VDOMTYPESPLUGIN_H
 #define VDOMTYPESPLUGIN_H
 
-#include "vdomtypesplugin_global.h"
 #include <QDesignerCustomWidgetInterface>
+#include <QString>
+#include <QSharedPointer>
+#include "vdomtypesplugin_global.h"
+#include "typesloader.h"
+
+class VDOMWidget;
 
 class VdomTypesPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
@@ -10,7 +15,7 @@ class VdomTypesPlugin : public QObject, public QDesignerCustomWidgetInterface
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 
 public:
-    VdomTypesPlugin(QObject *parent = 0);
+    VdomTypesPlugin(const VdomTypeInfo &typeInfo, const VDOMWidget &widget, QObject *parent = 0);
 
     bool isContainer() const;
     bool isInitialized() const;
@@ -26,6 +31,22 @@ public:
 
 private:
     bool initialized;
+    QSharedPointer<VdomTypeInfo> vdomType;
+    QString className;
+};
+
+class VdomTypesCollection: public QObject, public QDesignerCustomWidgetCollectionInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(QDesignerCustomWidgetCollectionInterface)
+
+public:
+    VdomTypesCollection(QObject *parent = 0);
+
+    virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
+
+private:
+    QList<QDesignerCustomWidgetInterface*> widgets;
 };
 
 #endif // VDOMTYPESPLUGIN_H

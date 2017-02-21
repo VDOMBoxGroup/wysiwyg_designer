@@ -75,7 +75,6 @@ void DesignerCore::initializeCorePlugins(const QString &pluginPath)
     }
 }
 
-
 void DesignerCore::widgetManaged(QWidget *widget)
 {
     if (signalHandler)
@@ -86,8 +85,7 @@ void DesignerCore::formSizeChanged(int w, int h)
 {
     if (const SharedTools::WidgetHost *wh = qobject_cast<const SharedTools::WidgetHost*>(sender())) {
         wh->formWindow()->setDirty(true);
-        static const QString geometry = QLatin1String("geometry");
-        core->propertyEditor()->setPropertyValue(geometry, QRect(0, 0, w, h));
+        core->propertyEditor()->setPropertyValue(QLatin1String("geometry"), QRect(0, 0, w, h));
     }
 }
 

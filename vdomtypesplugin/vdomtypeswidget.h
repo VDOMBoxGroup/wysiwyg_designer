@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QtDesigner/QDesignerExportWidget>
+#include <QSharedPointer>
+#include "typesloader.h"
 
 class QDESIGNER_WIDGET_EXPORT VdomTypesWidget: public QWidget
 {
@@ -10,9 +12,14 @@ class QDESIGNER_WIDGET_EXPORT VdomTypesWidget: public QWidget
 
 public:
     VdomTypesWidget(QWidget *parent = 0);
+    void setVdomType(const QSharedPointer<VdomTypeInfo> &typeInfo) { vdomType = typeInfo; }
+    const QSharedPointer<VdomTypeInfo>& getVdomType() const { return vdomType; }
 
 protected:
     void paintEvent(QPaintEvent *event);
+
+private:
+    QSharedPointer<VdomTypeInfo> vdomType;
 };
 
 #endif // VDOMTYPESWIDGET_H
