@@ -101,17 +101,16 @@ QString VdomTypesPlugin::includeFile() const
 
 VdomTypesCollection::VdomTypesCollection(QObject *parent) : QObject(parent)
 {
-    QList<VdomTypeInfo> types = LoadTypes(defaultPath(defaultTypesFileName));
+    QMap<QString, VdomTypeInfo> types = LoadTypes(defaultPath(defaultTypesFileName));
 
     qDebug("Loaded %d types", types.size());
 
-    for (int i=0; i<types.size(); i++) {
-        const VdomTypeInfo &typeInfo = types.at(i);
-        if (typeInfo.container == "3")  // exclude top-level containers
+    for (QMap<QString, VdomTypeInfo>::const_iterator i=types.begin(); i!=types.end(); i++) {
+        if (i->container == "3")  // exclude top-level containers
             continue;
-        VDOMWidget *w = createVdomWidget(typeInfo.typeName, NULL);
+        VDOMWidget *w = createVdomWidget(i->typeName, NULL);
         if (w) {
-            widgets.append(new VdomTypesPlugin(typeInfo, *w, this));
+            widgets.append(new VdomTypesPlugin(*i, *w, this));
             delete w;
         }
     }
