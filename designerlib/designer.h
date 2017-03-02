@@ -1,7 +1,7 @@
 #ifndef DESIGNER_H
 #define DESIGNER_H
 
-#include <qglobal.h>
+#include <QVariant>
 
 class QWidget;
 class DesignerCore;
@@ -10,6 +10,8 @@ class DesignerSignalHandler
 {
 public:
     virtual void widgetManaged(QWidget*) = 0;
+    virtual void changed() = 0;
+    virtual void propertyChanged(const QString &name, const QVariant &value) = 0;
 };
 
 class Designer

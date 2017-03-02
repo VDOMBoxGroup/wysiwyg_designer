@@ -41,10 +41,14 @@ void DesignerCore::createDesignerCore(QWidget *parent, const QString &widgetsFil
     core->setIntegration(integration);
 
     formWindow = formWindowManager->createFormWindow(0);
+    formWindow->setGrid(QPoint(1, 1));
 
     widgetHost = new SharedTools::WidgetHost(0, formWindow);
     connect(widgetHost, SIGNAL(formWindowSizeChanged(int, int)), this, SLOT(formSizeChanged(int, int)));
     connect(formWindow, SIGNAL(widgetManaged(QWidget*)), this, SLOT(widgetManaged(QWidget*)));
+    connect(formWindow, SIGNAL(changed()), this, SLOT(changed()));
+    connect(core->propertyEditor(), SIGNAL(propertyChanged(const QString&, const QVariant&)),
+            this, SLOT(propertyChanged(const QString&, const QVariant&)));
 
     if (!widgetsFileName.isEmpty()) {
         QDesignerWidgetBoxInterface *wb = core->widgetBox();
@@ -86,7 +90,20 @@ void DesignerCore::formSizeChanged(int w, int h)
     if (const SharedTools::WidgetHost *wh = qobject_cast<const SharedTools::WidgetHost*>(sender())) {
         wh->formWindow()->setDirty(true);
         core->propertyEditor()->setPropertyValue(QLatin1String("geometry"), QRect(0, 0, w, h));
+        propertyChanged(QLatin1String("geometry"), QRect(0, 0, w, h));
     }
+}
+
+void DesignerCore::changed()
+{
+    if (signalHandler)
+        signalHandler->changed();
+}
+
+void DesignerCore::propertyChanged(const QString &name, const QVariant &value)
+{
+    if (signalHandler)
+        signalHandler->propertyChanged(name, value);
 }
 
 QWidget* DesignerCore::getWidgetBox() const

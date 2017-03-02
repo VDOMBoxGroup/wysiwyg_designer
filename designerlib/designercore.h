@@ -32,6 +32,8 @@ public:
 private slots:
     void formSizeChanged(int w, int h);
     void widgetManaged(QWidget *widget);
+    void changed();
+    void propertyChanged(const QString &name, const QVariant &value);
 
 private:
     void createDesignerCore(QWidget *parent, const QString &widgetsFileName,
