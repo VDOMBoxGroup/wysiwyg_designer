@@ -36,12 +36,12 @@ inline bool equals(const QXmlStreamReader &xml, const QString &str)
 
 inline QString langdata(const VdomTypeInfo &typeInfo, const QString &data, const QString &langId)
 {
-    if (typeInfo.lang.find(langId) == typeInfo.lang.end())
+    if (!typeInfo.lang.contains(langId))
         return data;
     QString sentenceId = extractLang(data);
     if (sentenceId.isEmpty())
         return data;
-    if (typeInfo.lang[langId].find(sentenceId) == typeInfo.lang[langId].end())
+    if (!typeInfo.lang[langId].contains(sentenceId))
         return data;
     return typeInfo.lang[langId][sentenceId];
 }
@@ -146,9 +146,9 @@ VdomTypeInfo LoadType(QXmlStreamReader &xml)
     return ret;
 }
 
-QList<VdomTypeInfo> LoadTypes(const QString &filename)
+QMap<QString, VdomTypeInfo> LoadTypes(const QString &filename)
 {
-    QList<VdomTypeInfo> ret;
+    QMap<QString, VdomTypeInfo> ret;
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         qDebug("Can't open types file \'%s\': %s", filename.toLatin1().constData(), file.errorString().toLatin1().constData());
@@ -165,7 +165,7 @@ QList<VdomTypeInfo> LoadTypes(const QString &filename)
                 t.category = langdata(t, t.category, EN_US);
                 for (QMap<QString, AttributeInfo>::iterator i=t.attributes.begin(); i!=t.attributes.end(); i++)
                     i->displayName = langdata(t, i->displayName, EN_US);
-                ret.append(t);
+                ret[t.typeName] = t;
             }
         }
     }

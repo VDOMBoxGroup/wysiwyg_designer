@@ -28,6 +28,6 @@ public:
     QMap<QString, QMap<QString, QString> > lang;
 };
 
-QList<VdomTypeInfo> LoadTypes(const QString &filename);
+QMap<QString, VdomTypeInfo> LoadTypes(const QString &filename);
 
 #endif // TYPESLOADER_H
