@@ -2,6 +2,7 @@
 #define DIALOG_H
 
 #include <QDialog>
+#include <QVariant>
 #include "wysiwygeditor.h"
 
 namespace Ui {
@@ -15,6 +16,10 @@ class Dialog : public QDialog
 public:
     explicit Dialog(QWidget *parent = 0);
     ~Dialog();
+
+private slots:
+    void onChanged();
+    void onAttrChanged(const QString &name, const QVariant &value);
 
 private:
     Ui::Dialog *ui;
