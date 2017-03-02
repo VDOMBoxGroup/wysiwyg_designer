@@ -7,492 +7,12 @@
 
 // classes
 
-class FormImage: public VDOMWidget
+class Accordeon: public VDOMWidget
 {
     Q_OBJECT
 public:
-    FormImage(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormImage(parent); }
-};
-
-class PrintToWebAction: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    PrintToWebAction(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new PrintToWebAction(parent); }
-};
-
-class FormList: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormList(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormList(parent); }
-};
-
-class SVGBook: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    SVGBook(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new SVGBook(parent); }
-};
-
-class FullCalendar: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FullCalendar(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FullCalendar(parent); }
-};
-
-class Hypertext: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Hypertext(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Hypertext(parent); }
-};
-
-class FullTextIndex: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FullTextIndex(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FullTextIndex(parent); }
-};
-
-class ProgressBar: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    ProgressBar(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new ProgressBar(parent); }
-};
-
-class DesktopApplication: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DesktopApplication(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DesktopApplication(parent); }
-};
-
-class Table: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Table(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Table(parent); }
-};
-
-class Calendar: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Calendar(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Calendar(parent); }
-};
-
-class Accordion: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Accordion(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Accordion(parent); }
-};
-
-class FormRadiobutton: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormRadiobutton(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormRadiobutton(parent); }
-};
-
-class DatabaseTable: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DatabaseTable(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DatabaseTable(parent); }
-};
-
-class DynamicObjectView: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DynamicObjectView(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DynamicObjectView(parent); }
-};
-
-class FormText: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormText(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormText(parent); }
-};
-
-class DesktopApplicationForm: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DesktopApplicationForm(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DesktopApplicationForm(parent); }
-};
-
-class Growl: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Growl(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Growl(parent); }
-};
-
-class Indexconnector: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Indexconnector(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Indexconnector(parent); }
-};
-
-class Container: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Container(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Container(parent); }
-};
-
-class FormTextEditor: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormTextEditor(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormTextEditor(parent); }
-};
-
-class XMLContainer: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    XMLContainer(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new XMLContainer(parent); }
-};
-
-class Breadcrumbs: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Breadcrumbs(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Breadcrumbs(parent); }
-};
-
-class WebDAVContainer: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    WebDAVContainer(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new WebDAVContainer(parent); }
-};
-
-class FormCheckbox: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormCheckbox(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormCheckbox(parent); }
-};
-
-class Shortcut: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Shortcut(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Shortcut(parent); }
-};
-
-class Connector: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Connector(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Connector(parent); }
-};
-
-class TableCell: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    TableCell(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new TableCell(parent); }
-};
-
-class DesktopApplicationScript: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DesktopApplicationScript(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DesktopApplicationScript(parent); }
-};
-
-class EditableResource: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    EditableResource(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new EditableResource(parent); }
-};
-
-class Carousel: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Carousel(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Carousel(parent); }
-};
-
-class Text: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Text(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Text(parent); }
-};
-
-class FormButton: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormButton(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormButton(parent); }
-};
-
-class XMLDialog: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    XMLDialog(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new XMLDialog(parent); }
-};
-
-class Image: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Image(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Image(parent); }
-};
-
-class FormPassword: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormPassword(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormPassword(parent); }
-};
-
-class SmartFolderPresentation: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    SmartFolderPresentation(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new SmartFolderPresentation(parent); }
-};
-
-class VDOMPackage: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    VDOMPackage(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new VDOMPackage(parent); }
-};
-
-class VDOMDynamicObject: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    VDOMDynamicObject(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new VDOMDynamicObject(parent); }
-};
-
-class VDOMClass: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    VDOMClass(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new VDOMClass(parent); }
-};
-
-class FlashAnimation: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FlashAnimation(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FlashAnimation(parent); }
-};
-
-class Form: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Form(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Form(parent); }
-};
-
-class FormDropdownList: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormDropdownList(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormDropdownList(parent); }
-};
-
-class Tree: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Tree(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Tree(parent); }
-};
-
-class AsyncFileUploader: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    AsyncFileUploader(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new AsyncFileUploader(parent); }
-};
-
-class DBHTMLView: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DBHTMLView(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DBHTMLView(parent); }
-};
-
-class Pagination: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Pagination(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Pagination(parent); }
-};
-
-class FormDate: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormDate(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormDate(parent); }
-};
-
-class FormTextArea: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormTextArea(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormTextArea(parent); }
-};
-
-class Photogallery: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Photogallery(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Photogallery(parent); }
-};
-
-class LanguageSelector: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    LanguageSelector(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new LanguageSelector(parent); }
-};
-
-class SmartFolderDataContainer: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    SmartFolderDataContainer(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new SmartFolderDataContainer(parent); }
-};
-
-class Uploader: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Uploader(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Uploader(parent); }
-};
-
-class DialogV2: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DialogV2(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DialogV2(parent); }
-};
-
-class FullTextSearch: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FullTextSearch(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FullTextSearch(parent); }
-};
-
-class PrintToWebContainer: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    PrintToWebContainer(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new PrintToWebContainer(parent); }
-};
-
-class Copy: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Copy(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Copy(parent); }
-};
-
-class ListV2: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    ListV2(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new ListV2(parent); }
-};
-
-class DBSchema: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DBSchema(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DBSchema(parent); }
-};
-
-class FormRadiogroup: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    FormRadiogroup(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormRadiogroup(parent); }
-};
-
-class DatatableV3: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    DatatableV3(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DatatableV3(parent); }
+    Accordeon(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Accordeon(parent); }
 };
 
 class Bar: public VDOMWidget
@@ -503,44 +23,12 @@ public:
     static VDOMWidget* create(QWidget *parent) { return new Bar(parent); }
 };
 
-class HTMLContainer: public VDOMWidget
+class Breadcrumbs: public VDOMWidget
 {
     Q_OBJECT
 public:
-    HTMLContainer(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new HTMLContainer(parent); }
-};
-
-class LicenseContainer: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    LicenseContainer(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new LicenseContainer(parent); }
-};
-
-class Splitter: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Splitter(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Splitter(parent); }
-};
-
-class TableRow: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    TableRow(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new TableRow(parent); }
-};
-
-class Tabview: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    Tabview(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Tabview(parent); }
+    Breadcrumbs(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Breadcrumbs(parent); }
 };
 
 class Button: public VDOMWidget
@@ -551,44 +39,36 @@ public:
     static VDOMWidget* create(QWidget *parent) { return new Button(parent); }
 };
 
-class List: public VDOMWidget
+class Calendar: public VDOMWidget
 {
     Q_OBJECT
 public:
-    List(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new List(parent); }
+    Calendar(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Calendar(parent); }
 };
 
-class Timer: public VDOMWidget
+class Carousel: public VDOMWidget
 {
     Q_OBJECT
 public:
-    Timer(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Timer(parent); }
+    Carousel(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Carousel(parent); }
 };
 
-class Flot: public VDOMWidget
+class Codeeditor: public VDOMWidget
 {
     Q_OBJECT
 public:
-    Flot(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Flot(parent); }
+    Codeeditor(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Codeeditor(parent); }
 };
 
-class Sensitive: public VDOMWidget
+class Connector: public VDOMWidget
 {
     Q_OBJECT
 public:
-    Sensitive(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Sensitive(parent); }
-};
-
-class CodeEditor: public VDOMWidget
-{
-    Q_OBJECT
-public:
-    CodeEditor(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new CodeEditor(parent); }
+    Connector(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Connector(parent); }
 };
 
 class Contact: public VDOMWidget
@@ -599,28 +79,52 @@ public:
     static VDOMWidget* create(QWidget *parent) { return new Contact(parent); }
 };
 
-class PrintToWebScript: public VDOMWidget
+class Container: public VDOMWidget
 {
     Q_OBJECT
 public:
-    PrintToWebScript(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new PrintToWebScript(parent); }
+    Container(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Container(parent); }
 };
 
-class FormColorPicker: public VDOMWidget
+class Copy: public VDOMWidget
 {
     Q_OBJECT
 public:
-    FormColorPicker(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new FormColorPicker(parent); }
+    Copy(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Copy(parent); }
 };
 
-class Menu: public VDOMWidget
+class Datatable_v3: public VDOMWidget
 {
     Q_OBJECT
 public:
-    Menu(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new Menu(parent); }
+    Datatable_v3(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Datatable_v3(parent); }
+};
+
+class Dbhtmlview: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Dbhtmlview(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Dbhtmlview(parent); }
+};
+
+class Dbschema: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Dbschema(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Dbschema(parent); }
+};
+
+class Dbtable: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Dbtable(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Dbtable(parent); }
 };
 
 class Debug: public VDOMWidget
@@ -631,28 +135,364 @@ public:
     static VDOMWidget* create(QWidget *parent) { return new Debug(parent); }
 };
 
-class DesktopSharedModule: public VDOMWidget
+class Desktopapplication: public VDOMWidget
 {
     Q_OBJECT
 public:
-    DesktopSharedModule(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new DesktopSharedModule(parent); }
+    Desktopapplication(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Desktopapplication(parent); }
 };
 
-class ObjectView: public VDOMWidget
+class Desktopform: public VDOMWidget
 {
     Q_OBJECT
 public:
-    ObjectView(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new ObjectView(parent); }
+    Desktopform(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Desktopform(parent); }
 };
 
-class MySQLConnector: public VDOMWidget
+class Desktopscript: public VDOMWidget
 {
     Q_OBJECT
 public:
-    MySQLConnector(QWidget *parent) : VDOMWidget(parent) {}
-    static VDOMWidget* create(QWidget *parent) { return new MySQLConnector(parent); }
+    Desktopscript(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Desktopscript(parent); }
+};
+
+class Desktopshared: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Desktopshared(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Desktopshared(parent); }
+};
+
+class Dialog_2: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Dialog_2(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Dialog_2(parent); }
+};
+
+class Dynamicvdom: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Dynamicvdom(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Dynamicvdom(parent); }
+};
+
+class Dynobjectview: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Dynobjectview(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Dynobjectview(parent); }
+};
+
+class Editableresource: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Editableresource(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Editableresource(parent); }
+};
+
+class Flashanimation: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Flashanimation(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Flashanimation(parent); }
+};
+
+class Flot: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Flot(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Flot(parent); }
+};
+
+class Form: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Form(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Form(parent); }
+};
+
+class Formbutton: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formbutton(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formbutton(parent); }
+};
+
+class Formcheckbox: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formcheckbox(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formcheckbox(parent); }
+};
+
+class Formcolorpicker: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formcolorpicker(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formcolorpicker(parent); }
+};
+
+class Formdate: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formdate(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formdate(parent); }
+};
+
+class Formdropdown: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formdropdown(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formdropdown(parent); }
+};
+
+class Formimage: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formimage(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formimage(parent); }
+};
+
+class Formlist: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formlist(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formlist(parent); }
+};
+
+class Formpassword: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formpassword(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formpassword(parent); }
+};
+
+class Formradiobutton: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formradiobutton(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formradiobutton(parent); }
+};
+
+class Formradiogroup: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formradiogroup(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formradiogroup(parent); }
+};
+
+class Formtext: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formtext(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formtext(parent); }
+};
+
+class Formtextarea: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formtextarea(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formtextarea(parent); }
+};
+
+class Formtexteditor: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Formtexteditor(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Formtexteditor(parent); }
+};
+
+class Fullcalendar: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Fullcalendar(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Fullcalendar(parent); }
+};
+
+class Fulltextindex: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Fulltextindex(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Fulltextindex(parent); }
+};
+
+class Fulltextsearch: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Fulltextsearch(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Fulltextsearch(parent); }
+};
+
+class Growl: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Growl(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Growl(parent); }
+};
+
+class Htmlcontainer: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Htmlcontainer(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Htmlcontainer(parent); }
+};
+
+class Hypertext: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Hypertext(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Hypertext(parent); }
+};
+
+class Image: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Image(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Image(parent); }
+};
+
+class Indexconnector: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Indexconnector(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Indexconnector(parent); }
+};
+
+class Language_selector: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Language_selector(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Language_selector(parent); }
+};
+
+class License: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    License(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new License(parent); }
+};
+
+class List: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    List(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new List(parent); }
+};
+
+class Listv2: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Listv2(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Listv2(parent); }
+};
+
+class Menu: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Menu(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Menu(parent); }
+};
+
+class Mysqlconnector: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Mysqlconnector(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Mysqlconnector(parent); }
+};
+
+class Objectview: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Objectview(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Objectview(parent); }
+};
+
+class Pagination: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Pagination(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Pagination(parent); }
+};
+
+class Photogallery: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Photogallery(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Photogallery(parent); }
+};
+
+class Printtowebaction: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Printtowebaction(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Printtowebaction(parent); }
+};
+
+class Printtowebcontainer: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Printtowebcontainer(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Printtowebcontainer(parent); }
+};
+
+class Printtowebscript: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Printtowebscript(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Printtowebscript(parent); }
+};
+
+class Progressbar: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Progressbar(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Progressbar(parent); }
 };
 
 class Richtext: public VDOMWidget
@@ -661,6 +501,166 @@ class Richtext: public VDOMWidget
 public:
     Richtext(QWidget *parent) : VDOMWidget(parent) {}
     static VDOMWidget* create(QWidget *parent) { return new Richtext(parent); }
+};
+
+class Sensitive: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Sensitive(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Sensitive(parent); }
+};
+
+class Shortcut: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Shortcut(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Shortcut(parent); }
+};
+
+class Smartfolder: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Smartfolder(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Smartfolder(parent); }
+};
+
+class Smartfolderdata: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Smartfolderdata(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Smartfolderdata(parent); }
+};
+
+class Splitter: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Splitter(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Splitter(parent); }
+};
+
+class Svgbook: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Svgbook(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Svgbook(parent); }
+};
+
+class Table: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Table(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Table(parent); }
+};
+
+class Tablecell: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Tablecell(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Tablecell(parent); }
+};
+
+class Tablerow: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Tablerow(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Tablerow(parent); }
+};
+
+class Tabview: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Tabview(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Tabview(parent); }
+};
+
+class Text: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Text(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Text(parent); }
+};
+
+class Timer: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Timer(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Timer(parent); }
+};
+
+class Tree: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Tree(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Tree(parent); }
+};
+
+class Uploader: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Uploader(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Uploader(parent); }
+};
+
+class Uploader_2: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Uploader_2(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Uploader_2(parent); }
+};
+
+class Vdomclass: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Vdomclass(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Vdomclass(parent); }
+};
+
+class Vdompackage: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Vdompackage(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Vdompackage(parent); }
+};
+
+class Webdavcontainer: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Webdavcontainer(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Webdavcontainer(parent); }
+};
+
+class Xmlcontainer: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Xmlcontainer(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Xmlcontainer(parent); }
+};
+
+class Xmldialog: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Xmldialog(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Xmldialog(parent); }
 };
 
 // end classes
@@ -672,88 +672,88 @@ static QMap<QString, FactoryFunction> makeFactory()
     QMap<QString, FactoryFunction> f;
 
     // creators
-    f["formimage"] = FormImage::create;
-    f["printtowebaction"] = PrintToWebAction::create;
-    f["formlist"] = FormList::create;
-    f["svgbook"] = SVGBook::create;
-    f["fullcalendar"] = FullCalendar::create;
-    f["hypertext"] = Hypertext::create;
-    f["fulltextindex"] = FullTextIndex::create;
-    f["progressbar"] = ProgressBar::create;
-    f["desktopapplication"] = DesktopApplication::create;
-    f["table"] = Table::create;
-    f["calendar"] = Calendar::create;
-    f["accordeon"] = Accordion::create;
-    f["formradiobutton"] = FormRadiobutton::create;
-    f["dbtable"] = DatabaseTable::create;
-    f["dynobjectview"] = DynamicObjectView::create;
-    f["formtext"] = FormText::create;
-    f["desktopform"] = DesktopApplicationForm::create;
-    f["growl"] = Growl::create;
-    f["indexconnector"] = Indexconnector::create;
-    f["container"] = Container::create;
-    f["formtexteditor"] = FormTextEditor::create;
-    f["xmlcontainer"] = XMLContainer::create;
-    f["breadcrumbs"] = Breadcrumbs::create;
-    f["webdavcontainer"] = WebDAVContainer::create;
-    f["formcheckbox"] = FormCheckbox::create;
-    f["shortcut"] = Shortcut::create;
-    f["connector"] = Connector::create;
-    f["tablecell"] = TableCell::create;
-    f["desktopscript"] = DesktopApplicationScript::create;
-    f["editableresource"] = EditableResource::create;
-    f["carousel"] = Carousel::create;
-    f["text"] = Text::create;
-    f["formbutton"] = FormButton::create;
-    f["xmldialog"] = XMLDialog::create;
-    f["image"] = Image::create;
-    f["formpassword"] = FormPassword::create;
-    f["smartfolder"] = SmartFolderPresentation::create;
-    f["vdompackage"] = VDOMPackage::create;
-    f["dynamicvdom"] = VDOMDynamicObject::create;
-    f["vdomclass"] = VDOMClass::create;
-    f["flashanimation"] = FlashAnimation::create;
-    f["form"] = Form::create;
-    f["formdropdown"] = FormDropdownList::create;
-    f["tree"] = Tree::create;
-    f["uploader_2"] = AsyncFileUploader::create;
-    f["dbhtmlview"] = DBHTMLView::create;
-    f["pagination"] = Pagination::create;
-    f["formdate"] = FormDate::create;
-    f["formtextarea"] = FormTextArea::create;
-    f["photogallery"] = Photogallery::create;
-    f["language_selector"] = LanguageSelector::create;
-    f["smartfolderdata"] = SmartFolderDataContainer::create;
-    f["uploader"] = Uploader::create;
-    f["dialog_2"] = DialogV2::create;
-    f["fulltextsearch"] = FullTextSearch::create;
-    f["printtowebcontainer"] = PrintToWebContainer::create;
-    f["copy"] = Copy::create;
-    f["listv2"] = ListV2::create;
-    f["dbschema"] = DBSchema::create;
-    f["formradiogroup"] = FormRadiogroup::create;
-    f["datatable_v3"] = DatatableV3::create;
+    f["accordeon"] = Accordeon::create;
     f["bar"] = Bar::create;
-    f["htmlcontainer"] = HTMLContainer::create;
-    f["license"] = LicenseContainer::create;
-    f["splitter"] = Splitter::create;
-    f["tablerow"] = TableRow::create;
-    f["tabview"] = Tabview::create;
+    f["breadcrumbs"] = Breadcrumbs::create;
     f["button"] = Button::create;
-    f["list"] = List::create;
-    f["timer"] = Timer::create;
-    f["flot"] = Flot::create;
-    f["sensitive"] = Sensitive::create;
-    f["codeeditor"] = CodeEditor::create;
+    f["calendar"] = Calendar::create;
+    f["carousel"] = Carousel::create;
+    f["codeeditor"] = Codeeditor::create;
+    f["connector"] = Connector::create;
     f["contact"] = Contact::create;
-    f["printtowebscript"] = PrintToWebScript::create;
-    f["formcolorpicker"] = FormColorPicker::create;
-    f["menu"] = Menu::create;
+    f["container"] = Container::create;
+    f["copy"] = Copy::create;
+    f["datatable_v3"] = Datatable_v3::create;
+    f["dbhtmlview"] = Dbhtmlview::create;
+    f["dbschema"] = Dbschema::create;
+    f["dbtable"] = Dbtable::create;
     f["debug"] = Debug::create;
-    f["desktopshared"] = DesktopSharedModule::create;
-    f["objectview"] = ObjectView::create;
-    f["mysqlconnector"] = MySQLConnector::create;
+    f["desktopapplication"] = Desktopapplication::create;
+    f["desktopform"] = Desktopform::create;
+    f["desktopscript"] = Desktopscript::create;
+    f["desktopshared"] = Desktopshared::create;
+    f["dialog_2"] = Dialog_2::create;
+    f["dynamicvdom"] = Dynamicvdom::create;
+    f["dynobjectview"] = Dynobjectview::create;
+    f["editableresource"] = Editableresource::create;
+    f["flashanimation"] = Flashanimation::create;
+    f["flot"] = Flot::create;
+    f["form"] = Form::create;
+    f["formbutton"] = Formbutton::create;
+    f["formcheckbox"] = Formcheckbox::create;
+    f["formcolorpicker"] = Formcolorpicker::create;
+    f["formdate"] = Formdate::create;
+    f["formdropdown"] = Formdropdown::create;
+    f["formimage"] = Formimage::create;
+    f["formlist"] = Formlist::create;
+    f["formpassword"] = Formpassword::create;
+    f["formradiobutton"] = Formradiobutton::create;
+    f["formradiogroup"] = Formradiogroup::create;
+    f["formtext"] = Formtext::create;
+    f["formtextarea"] = Formtextarea::create;
+    f["formtexteditor"] = Formtexteditor::create;
+    f["fullcalendar"] = Fullcalendar::create;
+    f["fulltextindex"] = Fulltextindex::create;
+    f["fulltextsearch"] = Fulltextsearch::create;
+    f["growl"] = Growl::create;
+    f["htmlcontainer"] = Htmlcontainer::create;
+    f["hypertext"] = Hypertext::create;
+    f["image"] = Image::create;
+    f["indexconnector"] = Indexconnector::create;
+    f["language_selector"] = Language_selector::create;
+    f["license"] = License::create;
+    f["list"] = List::create;
+    f["listv2"] = Listv2::create;
+    f["menu"] = Menu::create;
+    f["mysqlconnector"] = Mysqlconnector::create;
+    f["objectview"] = Objectview::create;
+    f["pagination"] = Pagination::create;
+    f["photogallery"] = Photogallery::create;
+    f["printtowebaction"] = Printtowebaction::create;
+    f["printtowebcontainer"] = Printtowebcontainer::create;
+    f["printtowebscript"] = Printtowebscript::create;
+    f["progressbar"] = Progressbar::create;
     f["richtext"] = Richtext::create;
+    f["sensitive"] = Sensitive::create;
+    f["shortcut"] = Shortcut::create;
+    f["smartfolder"] = Smartfolder::create;
+    f["smartfolderdata"] = Smartfolderdata::create;
+    f["splitter"] = Splitter::create;
+    f["svgbook"] = Svgbook::create;
+    f["table"] = Table::create;
+    f["tablecell"] = Tablecell::create;
+    f["tablerow"] = Tablerow::create;
+    f["tabview"] = Tabview::create;
+    f["text"] = Text::create;
+    f["timer"] = Timer::create;
+    f["tree"] = Tree::create;
+    f["uploader"] = Uploader::create;
+    f["uploader_2"] = Uploader_2::create;
+    f["vdomclass"] = Vdomclass::create;
+    f["vdompackage"] = Vdompackage::create;
+    f["webdavcontainer"] = Webdavcontainer::create;
+    f["xmlcontainer"] = Xmlcontainer::create;
+    f["xmldialog"] = Xmldialog::create;
     // end creators
 
     return f;

@@ -1,4 +1,4 @@
-import os
+import os, string
 
 types_file = "types.txt"
 output_file = "vdomtypesplugin\\vdomclasses.h"
@@ -50,9 +50,7 @@ inp = open(types_file, "r")
 outp = open(output_file, "w")
 
 def read_types(f):
-	def mysplit(s):
-		return s.strip().split(',', 1)
-	return {i[0] : i[1] for i in map(mysplit, f.readlines()) if len(i) == 2}
+	return [i for i in map(string.strip, f.readlines()) if i]
 
 def write_start(f):
 	f.write(start)
@@ -72,13 +70,13 @@ def write_classes(f, class_names):
 def write_factory(f, types):
 	f.write(factory_start)
 	for type_name in types:
-		f.write(factory_templ.format(type_name=type_name, class_name=types[type_name]))
+		f.write(factory_templ.format(type_name=type_name, class_name=type_name.capitalize()))
 	f.write(factory_end)
 
 
 types = read_types(inp)
 write_start(outp)
-write_classes(outp, types.values())
+write_classes(outp, map(string.capitalize, types))
 write_factory(outp, types)
 write_end(outp)
 
