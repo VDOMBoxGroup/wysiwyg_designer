@@ -45,6 +45,7 @@ public:
 
 private:
     void registerProperty(const QString &name);
+    void registerProperties(const QString &groupName);
 
     VdomTypesWidget *myWidget;
     QMap<QString, int> indexes;

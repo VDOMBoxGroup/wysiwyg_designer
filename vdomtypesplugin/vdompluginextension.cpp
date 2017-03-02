@@ -47,23 +47,31 @@ QObject* VdomPluginExtensionFactory::createExtension(QObject *object, const QStr
 VdomPluginPropertySheetExtension::VdomPluginPropertySheetExtension(VdomTypesWidget *widget, QObject *parent) : QObject(parent)
 {
     myWidget = widget;
-    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
 
     registerProperty("objectName");
     registerProperty("geometry");
+    for (QMap<QString, QString>::const_iterator i=propertyGroups.begin(); i!=propertyGroups.end(); i++)
+        registerProperties(i.key());
 
+}
+
+void VdomPluginPropertySheetExtension::registerProperties(const QString &groupName)
+{
+    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
     for (QMap<QString, AttributeInfo>::const_iterator i=vdomType->attributes.begin(); i!=vdomType->attributes.end(); i++) {
+        if (i->colorGroup != groupName)
+            continue;
         registerProperty(i->attrName);
         const char* propName = i->attrName.toLatin1().constData();
         if (myWidget->property(propName).isValid())
             continue;
-        myWidget->setProperty(propName, QVariant(QString("")));
+        myWidget->setProperty(propName, QVariant(i->defaultValue));
     }
 }
 
 void VdomPluginPropertySheetExtension::registerProperty(const QString &name)
 {
-    Q_ASSERT(indexes.find(name) == indexes.end());
+    Q_ASSERT(!indexes.contains(name));
     int index = indexes.count();
     indexes[name] = index;
     names[index] = name;
@@ -90,35 +98,43 @@ QString VdomPluginPropertySheetExtension::propertyName(int index) const
 
 QString VdomPluginPropertySheetExtension::propertyGroup(int index) const
 {
-    QMap<QString, AttributeInfo>::iterator i = myWidget->getVdomType()->attributes.find(propertyName(index));
-    if (i != myWidget->getVdomType()->attributes.end()) {
+    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
+    QMap<QString, AttributeInfo>::const_iterator i = vdomType->attributes.find(propertyName(index));
+    if (i != vdomType->attributes.end()) {
         QMap<QString, QString>::const_iterator j = propertyGroups.find(i->colorGroup);
         if (j != propertyGroups.end())
             return *j;
     }
-    return "Standard";
+    return propertyGroups["1"];
 }
 
 void VdomPluginPropertySheetExtension::setPropertyGroup(int /*index*/, const QString &/*group*/)
 {
 }
 
-bool VdomPluginPropertySheetExtension::hasReset(int /*index*/) const
+bool VdomPluginPropertySheetExtension::hasReset(int index) const
 {
-    return false;
+    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
+    return vdomType->attributes.contains(propertyName(index));
 }
 
-bool VdomPluginPropertySheetExtension::reset(int /*index*/)
+bool VdomPluginPropertySheetExtension::reset(int index)
 {
+    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
+    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->attributes.find(propertyName(index));
+    if (attr != vdomType->attributes.end()) {
+        setProperty(index, QVariant(attr->defaultValue));
+        return true;
+    }
     return false;
 }
 
 bool VdomPluginPropertySheetExtension::isVisible(int index) const
 {
     QString name = propertyName(index);
-    if (invisibleProperties.find(name) != invisibleProperties.end())
+    if (invisibleProperties.contains(name))
         return false;
-    QMap<QString, AttributeInfo>::iterator i = myWidget->getVdomType()->attributes.find(name);
+    QMap<QString, AttributeInfo>::const_iterator i = myWidget->getVdomType()->attributes.find(name);
     if (i != myWidget->getVdomType()->attributes.end() && !(i->visible))
         return false;
     return true;
@@ -150,7 +166,6 @@ QVariant VdomPluginPropertySheetExtension::property(int index) const
 
 void VdomPluginPropertySheetExtension::setProperty(int index, const QVariant &value)
 {
-    //qDebug(QString("setProperty %1 %2 %3\n").arg(index).arg(value.toString()).arg((int)value.type()).toLatin1().constData());
     QString name = propertyName(index);
     if (name.isEmpty())
         return;
@@ -164,8 +179,17 @@ void VdomPluginPropertySheetExtension::setProperty(int index, const QVariant &va
     myWidget->metaObject()->property(realIndex).write(myWidget, value);
 }
 
-bool VdomPluginPropertySheetExtension::isChanged(int /*index*/) const
+bool VdomPluginPropertySheetExtension::isChanged(int index) const
 {
+    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
+    QVariant value = property(index);
+    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->attributes.find(propertyName(index));
+    if (attr != vdomType->attributes.end()) {
+        if (value.type() == QVariant::Bool && QString::number(value.toInt()) == attr->defaultValue)
+            return false;
+        else if (value.type() != QVariant::UserType && value.toString() == attr->defaultValue)
+            return false;
+    }
     return true;
 }
 
