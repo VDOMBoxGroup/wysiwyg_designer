@@ -1,6 +1,7 @@
 #include "wysiwygeditor.h"
 #include "widgetsfile.h"
 #include "path.h"
+#include "converter.h"
 
 static const QString defaultContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 "<ui version=\"4.0\">"
@@ -40,6 +41,8 @@ void WysiwygEditor::initialize(QWidget *parent, const QString &widgetsFileName, 
     designer = new Designer();
     designer->initialize(parent, this, widgetsFile,
                          pluginPath.isEmpty() ? defaultPath(defaultPluginPath) : pluginPath);
+    // load vdom types for converter
+    getVdomTypes();
 }
 
 QWidget* WysiwygEditor::widgetBox() const
@@ -70,7 +73,7 @@ void WysiwygEditor::setContent(const QString &content)
 {
     Q_ASSERT(designer);
     if (!content.isEmpty()) {
-        designer->setContent(content);
+        designer->setContent(vdomxmlToQml(content));
     } else {
         designer->setContent(defaultContent);
     }
@@ -79,10 +82,20 @@ void WysiwygEditor::setContent(const QString &content)
 QString WysiwygEditor::getContent() const
 {
     Q_ASSERT(designer);
-    return designer->getContent();
+    return qmlToVdomxml(designer->getContent());
 }
 
 void WysiwygEditor::widgetManaged(QWidget*)
 {
     // TODO:
+}
+
+void WysiwygEditor::changed()
+{
+    emit modelChanged();
+}
+
+void WysiwygEditor::propertyChanged(const QString &name, const QVariant &value)
+{
+    emit attributeChanged(name, value);
 }

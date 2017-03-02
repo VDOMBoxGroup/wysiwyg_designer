@@ -1,7 +1,7 @@
 #ifndef WYSIWYGEDITOR_H
 #define WYSIWYGEDITOR_H
 
-#include <QObject>
+#include <QVariant>
 #include "designer.h"
 
 class QWidget;
@@ -25,8 +25,14 @@ public:
     Q_INVOKABLE QWidget* objectInspector() const;
     Q_INVOKABLE QWidget* propertyEditor() const;
 
+Q_SIGNALS:
+    void modelChanged();
+    void attributeChanged(const QString &name, const QVariant &value);
+
 private:
     void widgetManaged(QWidget*);
+    void changed();
+    void propertyChanged(const QString &name, const QVariant &value);
 
     Designer *designer;
 
