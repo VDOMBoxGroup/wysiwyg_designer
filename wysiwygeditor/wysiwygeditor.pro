@@ -26,12 +26,14 @@ INCLUDEPATH += ../designerlib ../common
 SOURCES += wysiwygeditor.cpp \
     ../common/typesloader.cpp \
     widgetsfile.cpp \
-    ../common/path.cpp
+    ../common/path.cpp \
+    converter.cpp
 
 HEADERS += wysiwygeditor.h \
     ../common/typesloader.h \
     widgetsfile.h \
-    ../common/path.h
+    ../common/path.h \
+    converter.h
 
 unix {
     target.path = /usr/lib
