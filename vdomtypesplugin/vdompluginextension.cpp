@@ -3,9 +3,31 @@
 #include <QtDesigner/QDesignerPropertySheetExtension>
 #include <QVariant>
 #include <QMetaProperty>
+#include <QSet>
 
-QMap<QString, QString> VdomPluginPropertySheetExtension::propertyGroups = VdomPluginPropertySheetExtension::makePropertyGroups();
-QMap<QString, bool> VdomPluginPropertySheetExtension::invisibleProperties = VdomPluginPropertySheetExtension::makeInvisibleProperties();
+QMap<QString, QString> makePropertyGroups()
+{
+    QMap<QString, QString> ret;
+    // TODO: maybe assign better names
+    ret["1"] = "Standard";
+    ret["2"] = "Extended";
+    ret["3"] = "Advanced";
+    ret["4"] = "Specific";
+    return ret;
+}
+
+QSet<QString> makeInvisibleProperties()
+{
+    QSet<QString> ret;
+    ret.insert("top");
+    ret.insert("left");
+    ret.insert("width");
+    ret.insert("height");
+    return ret;
+}
+
+QMap<QString, QString> propertyGroups = makePropertyGroups();
+QSet<QString> invisibleProperties = makeInvisibleProperties();
 
 VdomPluginExtensionFactory::VdomPluginExtensionFactory(QExtensionManager *parent): QExtensionFactory(parent)
 {
@@ -20,27 +42,6 @@ QObject* VdomPluginExtensionFactory::createExtension(QObject *object, const QStr
     } else {
         return 0;
     }
-}
-
-QMap<QString, QString> VdomPluginPropertySheetExtension::makePropertyGroups()
-{
-    QMap<QString, QString> ret;
-    // TODO: maybe assign better names
-    ret["1"] = "Standard";
-    ret["2"] = "Extended";
-    ret["3"] = "Advanced";
-    ret["4"] = "Specific";
-    return ret;
-}
-
-QMap<QString, bool> VdomPluginPropertySheetExtension::makeInvisibleProperties()
-{
-    QMap<QString, bool> ret;
-    ret["top"] = true;
-    ret["left"] = true;
-    ret["width"] = true;
-    ret["height"] = true;
-    return ret;
 }
 
 VdomPluginPropertySheetExtension::VdomPluginPropertySheetExtension(VdomTypesWidget *widget, QObject *parent) : QObject(parent)
