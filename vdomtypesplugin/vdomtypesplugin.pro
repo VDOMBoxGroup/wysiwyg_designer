@@ -22,14 +22,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-INCLUDEPATH += ../common
+INCLUDEPATH += ../common $(QTDIR)/tools/designer/src/lib/shared
 
 SOURCES += vdomtypesplugin.cpp \
     vdompluginextension.cpp \
     vdomtypeswidget.cpp \
     ../common/typesloader.cpp \
     ../common/path.cpp \
-    vdomclassfactory.cpp
+    vdomclassfactory.cpp \
+    ../common/util.cpp
 
 HEADERS += vdomtypesplugin.h\
         vdomtypesplugin_global.h \
@@ -38,7 +39,8 @@ HEADERS += vdomtypesplugin.h\
     ../common/typesloader.h \
     ../common/path.h \
     vdomclassfactory.h \
-    vdomclasses.h
+    vdomclasses.h \
+    ../common/util.h
 
 unix {
     target.path = /usr/lib

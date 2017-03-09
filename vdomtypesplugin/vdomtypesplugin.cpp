@@ -7,6 +7,8 @@
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QExtensionFactory>
 #include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QXmlStreamWriter>
+#include <QBuffer>
 
 VdomTypesPlugin::VdomTypesPlugin(const VdomTypeInfo &typeInfo, const VDOMWidget &widget, QObject *parent)
     : QObject(parent), initialized(false), vdomType(new VdomTypeInfo(typeInfo))
@@ -70,26 +72,69 @@ bool VdomTypesPlugin::isContainer() const
     return (vdomType->container == "2" || vdomType->container == "3");
 }
 
+void writeGeometry(QXmlStreamWriter &xml)
+{
+    xml.writeStartElement("property");
+    xml.writeAttribute("name", "geometry");
+    xml.writeStartElement("rect");
+    xml.writeTextElement("x", "0");
+    xml.writeTextElement("y", "0");
+    xml.writeTextElement("width", "100");
+    xml.writeTextElement("height", "100");
+    xml.writeEndElement();
+    xml.writeEndElement();
+}
+
+void writeStringProperty(QXmlStreamWriter &xml, const QString &name, const QString &value)
+{
+    xml.writeStartElement("property");
+    xml.writeAttribute("name", name);
+    xml.writeTextElement("string", value);
+    xml.writeEndElement();
+}
+
 QString VdomTypesPlugin::domXml() const
 {
-    return QString("<ui language=\"c++\" displayname=\"%1\">\n"
-                   " <widget class=\"%2\" name=\"%3\">\n"
-                   "  <property name=\"geometry\">\n"
-                   "   <rect>\n"
-                   "    <x>0</x>\n"
-                   "    <y>0</y>\n"
-                   "    <width>100</width>\n"
-                   "    <height>100</height>\n"
-                   "   </rect>\n"
-                   "  </property>\n"
-                   "  <property name=\"toolTip\" >\n"
-                   "   <string>%3</string>\n"
-                   "  </property>\n"
-                   "  <property name=\"whatsThis\" >\n"
-                   "   <string>%3</string>\n"
-                   "  </property>\n"
-                   " </widget>\n"
-                   "</ui>\n").arg(vdomType->displayName, className, vdomType->typeName);
+    QBuffer buffer;
+    buffer.open(QBuffer::WriteOnly);
+
+    QXmlStreamWriter xml(&buffer);
+    xml.setAutoFormatting(true);
+
+    xml.writeStartElement("ui");
+    xml.writeAttribute("language", "c++");
+    xml.writeAttribute("displayname", vdomType->displayName);
+
+    xml.writeStartElement("widget");
+    xml.writeAttribute("class", className);
+    xml.writeAttribute("name", vdomType->typeName);
+    writeGeometry(xml);
+    writeStringProperty(xml, "toolTip", vdomType->typeName);
+    writeStringProperty(xml, "whatsThis", vdomType->typeName);
+    for (QMap<QString, AttributeInfo>::const_iterator i=vdomType->attributes.begin(); i!=vdomType->attributes.end(); i++)
+        if ((i->isTextField() || i->isMultiLine()) && !invisibleProperties.contains(i->attrName))
+            writeStringProperty(xml, i->attrName, i->defaultValueStr);
+    xml.writeEndElement(); // widget
+
+    xml.writeStartElement("customwidgets");
+    xml.writeStartElement("customwidget");
+    xml.writeTextElement("class", className);
+    xml.writeStartElement("propertyspecifications");
+    for (QMap<QString, AttributeInfo>::const_iterator i=vdomType->attributes.begin(); i!=vdomType->attributes.end(); i++)
+        if ((i->isTextField() || i->isMultiLine()) && !invisibleProperties.contains(i->attrName)) {
+            xml.writeStartElement("stringpropertyspecification");
+            xml.writeAttribute("name", i->attrName);
+            xml.writeAttribute("notr", "true");
+            xml.writeAttribute("type", "multiline");
+            xml.writeEndElement(); // stringpropertyspecification
+        }
+    xml.writeEndElement(); // propertyspecifications
+    xml.writeEndElement(); // customwidget
+    xml.writeEndElement(); // customwidgets
+
+    xml.writeEndElement(); // ui
+
+    return buffer.buffer();
 }
 
 QString VdomTypesPlugin::includeFile() const
