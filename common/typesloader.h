@@ -3,17 +3,27 @@
 
 #include <QStringList>
 #include <QMap>
+#include <QVariant>
 
 class AttributeInfo
 {
 public:
     QString attrName;
     QString displayName;
-    QString defaultValue;
+    QVariant defaultValue;
+    QString defaultValueStr;
     bool visible;
     QString interfaceType;
     QString codeInterface;
     QString colorGroup;
+
+    bool isNumber() const;
+    bool isTextField() const;
+    bool isMultiLine() const;
+    bool isColor() const;
+    bool isFont() const;
+
+    bool equalsToDefault(const QVariant &v) const;
 };
 
 class VdomTypeInfo

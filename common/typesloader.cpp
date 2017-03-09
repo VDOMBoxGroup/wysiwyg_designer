@@ -1,7 +1,9 @@
 #include "typesloader.h"
+#include "util.h"
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QRegExp>
+#include <qdesigner_utils_p.h>
 
 #define TYPE "type"
 #define INFORMATION "information"
@@ -16,17 +18,68 @@
 
 QRegExp langRegExp("#Lang\\(([^\\)]+)\\)");
 
+bool AttributeInfo::isNumber() const
+{
+    return codeInterface.startsWith("Number");
+}
+
+bool AttributeInfo::isTextField() const
+{
+    return codeInterface.startsWith("TextField");
+}
+
+bool AttributeInfo::isMultiLine() const
+{
+    return codeInterface.startsWith("MultiLine");
+}
+
+bool AttributeInfo::isColor() const
+{
+    return codeInterface.startsWith("Color");
+}
+
+bool AttributeInfo::isFont() const
+{
+    return codeInterface.startsWith("Font");
+}
+
+bool AttributeInfo::equalsToDefault(const QVariant &v) const
+{
+    if (v.type() == QVariant::Bool && QString::number(v.toInt()) == defaultValueStr)
+        return true;
+    else if (QString(v.typeName()) == "qdesigner_internal::PropertySheetStringValue" &&
+             qvariant_cast<qdesigner_internal::PropertySheetStringValue>(v).value() == defaultValueStr)
+        return true;
+    else if (isColor() && parseColor(v.toString()) == parseColor(defaultValueStr))
+        return true;
+    else if (isFont() && *v.toString().split(',').begin() == *defaultValueStr.split(',').begin())
+        return true;
+    else if (v.type() != QVariant::UserType && v.toString() == defaultValueStr)
+        return true;
+    else
+        return false;
+}
+
+QVariant makeDefaultValue(const VdomTypeInfo &/*type*/, const AttributeInfo &attr)
+{
+    if (attr.isNumber())
+        return QVariant(attr.defaultValueStr.toInt());
+    else if (attr.isColor()) {
+        QVariant ret(QVariant::Color);
+        ret.setValue(parseColor(attr.defaultValueStr));
+        return ret;
+    }
+    else if (attr.isFont()) {
+        QFont f;
+        f.fromString(*attr.defaultValueStr.split(',').begin());
+        return QVariant(f);
+    }
+    return QVariant(attr.defaultValueStr);
+}
+
 inline QString get(QXmlStreamReader &xml)
 {
     return xml.readElementText().trimmed();
-}
-
-inline QString extractLang(const QString &s)
-{
-    if (langRegExp.indexIn(s) > -1)
-        return langRegExp.cap(1);
-    else
-        return QString();
 }
 
 inline bool equals(const QXmlStreamReader &xml, const QString &str)
@@ -34,16 +87,23 @@ inline bool equals(const QXmlStreamReader &xml, const QString &str)
     return (xml.name().compare(str, Qt::CaseInsensitive) == 0);
 }
 
-inline QString langdata(const VdomTypeInfo &typeInfo, const QString &data, const QString &langId)
+QString resolveLang(const VdomTypeInfo &typeInfo, const QString &data, const QString &langId)
 {
     if (!typeInfo.lang.contains(langId))
         return data;
-    QString sentenceId = extractLang(data);
-    if (sentenceId.isEmpty())
-        return data;
-    if (!typeInfo.lang[langId].contains(sentenceId))
-        return data;
-    return typeInfo.lang[langId][sentenceId];
+    QString result = data;
+    int start = 0;
+    while ((start = langRegExp.indexIn(result, start)) != -1) {
+        int length = langRegExp.matchedLength();
+        QString sentenceId = langRegExp.cap(1);
+        if (!sentenceId.isEmpty() && typeInfo.lang[langId].contains(sentenceId)) {
+            QString sentence = typeInfo.lang[langId][sentenceId];
+            result.replace(start, length, sentence);
+            start += sentence.length();
+        } else
+            start += length;
+    }
+    return result;
 }
 
 QMap<QString, QString> LoadLanguage(QXmlStreamReader &xml)
@@ -88,7 +148,7 @@ AttributeInfo LoadAttribute(QXmlStreamReader &xml)
         if (xml.tokenType() == QXmlStreamReader::StartElement) {
             if (equals(xml, "name")) ret.attrName = get(xml);
             else if (equals(xml, "displayname")) ret.displayName = get(xml);
-            else if (equals(xml, "defaultvalue")) ret.defaultValue = get(xml);
+            else if (equals(xml, "defaultvalue")) ret.defaultValueStr = get(xml);
             else if (equals(xml, "visible")) ret.visible = (get(xml).toInt() == 1);
             else if (equals(xml, "interfacetype")) ret.interfaceType = get(xml);
             else if (equals(xml, "codeinterface")) ret.codeInterface = get(xml);
@@ -161,10 +221,13 @@ QMap<QString, VdomTypeInfo> LoadTypes(const QString &filename)
         if (token == QXmlStreamReader::StartElement) {
             if (equals(xml, TYPE)) {
                 VdomTypeInfo t = LoadType(xml);
-                t.displayName = langdata(t, t.displayName, EN_US);
-                t.category = langdata(t, t.category, EN_US);
-                for (QMap<QString, AttributeInfo>::iterator i=t.attributes.begin(); i!=t.attributes.end(); i++)
-                    i->displayName = langdata(t, i->displayName, EN_US);
+                t.displayName = resolveLang(t, t.displayName, EN_US);
+                t.category = resolveLang(t, t.category, EN_US);
+                for (QMap<QString, AttributeInfo>::iterator i=t.attributes.begin(); i!=t.attributes.end(); i++) {
+                    i->displayName = resolveLang(t, i->displayName, EN_US);
+                    i->codeInterface = resolveLang(t, i->codeInterface, EN_US);
+                    i->defaultValue = makeDefaultValue(t, *i);
+                }
                 ret[t.typeName] = t;
             }
         }

@@ -4,9 +4,12 @@
 #include <QtDesigner/QExtensionFactory>
 #include <QtDesigner/QDesignerPropertySheetExtension>
 #include <QMap>
+#include <QSet>
 
 class QExtensionManager;
 class VdomTypesWidget;
+
+extern QSet<QString> invisibleProperties;
 
 class VdomPluginExtensionFactory: public QExtensionFactory
 {

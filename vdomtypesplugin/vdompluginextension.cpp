@@ -1,9 +1,9 @@
 #include "vdompluginextension.h"
 #include "vdomtypeswidget.h"
+#include "util.h"
 #include <QtDesigner/QDesignerPropertySheetExtension>
 #include <QVariant>
 #include <QMetaProperty>
-#include <QSet>
 
 QMap<QString, QString> makePropertyGroups()
 {
@@ -65,7 +65,7 @@ void VdomPluginPropertySheetExtension::registerProperties(const QString &groupNa
         const char* propName = i->attrName.toLatin1().constData();
         if (myWidget->property(propName).isValid())
             continue;
-        myWidget->setProperty(propName, QVariant(i->defaultValue));
+        myWidget->setProperty(propName, i->defaultValue);
     }
 }
 
@@ -123,7 +123,7 @@ bool VdomPluginPropertySheetExtension::reset(int index)
     const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
     QMap<QString, AttributeInfo>::const_iterator attr = vdomType->attributes.find(propertyName(index));
     if (attr != vdomType->attributes.end()) {
-        setProperty(index, QVariant(attr->defaultValue));
+        setProperty(index, attr->defaultValue);
         return true;
     }
     return false;
@@ -184,12 +184,8 @@ bool VdomPluginPropertySheetExtension::isChanged(int index) const
     const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
     QVariant value = property(index);
     QMap<QString, AttributeInfo>::const_iterator attr = vdomType->attributes.find(propertyName(index));
-    if (attr != vdomType->attributes.end()) {
-        if (value.type() == QVariant::Bool && QString::number(value.toInt()) == attr->defaultValue)
-            return false;
-        else if (value.type() != QVariant::UserType && value.toString() == attr->defaultValue)
-            return false;
-    }
+    if (attr != vdomType->attributes.end() && attr->equalsToDefault(value))
+        return false;
     return true;
 }
 
