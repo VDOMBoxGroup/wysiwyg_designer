@@ -9,7 +9,7 @@ static const QString content = "<CONTAINER name=\"container2\" top=\"50\" height
 "        </HYPERTEXT>"
 "        <IMAGE name=\"image1\" top=\"84\" value=\"9bf9e53c-cfc8-4ea7-a14c-12481ab87390\" height=\"68\" left=\"18\" width=\"161\"/>"
 "        <TEXT name=\"text1\" zindex=\"10\" top=\"106\" value=\"Chargement ....\" width=\"244\" fontsize=\"25\" color=\"A9DB44\" left=\"192\">"
-"          <Attribute Name=\"fontfamily\"><![CDATA[\"Arial Black\", \"Helvetica CY\", \"avant garde\", \"Nimbus Sans L\", sans-serif]]]]><![CDATA[>]]></Attribute>"
+"          <Attribute Name=\"fontfamily\"><![CDATA[\"Arial Black\", \"Helvetica CY\", \"avant garde\", \"Nimbus Sans L\", sans-serif]]></Attribute>"
 "        </TEXT>"
 "      </CONTAINER>";
 
