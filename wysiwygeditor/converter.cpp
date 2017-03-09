@@ -1,11 +1,13 @@
 #include "converter.h"
 #include "path.h"
+#include "util.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QBuffer>
 #include <QSet>
 #include <QMap>
 #include <QRect>
+#include <QFont>
 
 #define WIDGET "widget"
 #define PROPERTY "property"
@@ -71,12 +73,53 @@ QRect rect(QXmlStreamReader &input)
     return ret;
 }
 
+QColor color(QXmlStreamReader &input)
+{
+    QColor ret;
+    while (!input.atEnd() && !(input.tokenType() == QXmlStreamReader::EndElement && equals(input, "color"))) {
+        if (input.tokenType() == QXmlStreamReader::StartElement) {
+            if (equals(input, "red"))
+                ret.setRed(get(input).toInt());
+            else if (equals(input, "green"))
+                ret.setGreen(get(input).toInt());
+            else if (equals(input, "blue"))
+                ret.setBlue(get(input).toInt());
+        }
+        input.readNext();
+    }
+    return ret;
+}
+
+QFont font(QXmlStreamReader &input)
+{
+    QFont ret;
+    while (!input.atEnd() && !(input.tokenType() == QXmlStreamReader::EndElement && equals(input, "font"))) {
+        if (input.tokenType() == QXmlStreamReader::StartElement && equals(input, "family"))
+            ret.setFamily(get(input));
+        input.readNext();
+    }
+    return ret;
+}
+
 void writeAttribute(QXmlStreamWriter &output, const QString &name, const QString &value)
 {
     output.writeStartElement("Attribute");
     output.writeAttribute("Name", name);
     output.writeCDATA(value);
     output.writeEndElement();
+}
+
+QString readPropertyValue(QXmlStreamReader &input)
+{
+    input.readNextStartElement();
+    if (input.name() == "color") {
+        QColor c = color(input);
+        int cc = (c.red() << 16) | (c.green() << 8) | c.blue();
+        return QString::number(cc, 16);
+    } else if (input.name() == "font") {
+        return font(input).family();
+    } else
+        return get(input);
 }
 
 void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
@@ -94,8 +137,7 @@ void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
         output.writeAttribute("width", QString::number(r.width()));
         output.writeAttribute("height", QString::number(r.height()));
     } else {
-        input.readNextStartElement();
-        QString value = get(input);
+        QString value = readPropertyValue(input);
         if (value.length() <= MAX_ATTR_LEN)
             output.writeAttribute(name, value);
         else
@@ -155,11 +197,27 @@ QString qmlToVdomxml(const QString &qml)
 
 // === VDOMXML -> QML
 
-void widgetProperty(QXmlStreamWriter &output, const QString &name, const QString &value)
+void widgetProperty(QXmlStreamWriter &output, const QString &name, const QString &value, const AttributeInfo &attr)
 {
     output.writeStartElement(PROPERTY);
     output.writeAttribute("name", name);
-    output.writeTextElement("cstring", value);
+    if (attr.isNumber())
+        output.writeTextElement("number", value);
+    else if (attr.isColor()) {
+        QColor c = parseColor(value);
+        output.writeStartElement("color");
+        output.writeTextElement("red", QString::number(c.red()));
+        output.writeTextElement("green", QString::number(c.green()));
+        output.writeTextElement("blue", QString::number(c.blue()));
+        output.writeEndElement();
+    }
+    else if (attr.isFont()) {
+        output.writeStartElement("font");
+        output.writeTextElement("family", value);
+        output.writeEndElement();
+    }
+    else
+        output.writeTextElement("cstring", value);
     output.writeEndElement();
 }
 
@@ -186,11 +244,13 @@ void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<
         return;
     }
 
+    const VdomTypeInfo &type = types[typeName];
+
     QString objectName = attr(input, "name");
     if (customWidgets.isEmpty())
         output.writeTextElement("class", objectName);
 
-    const QString &container = types[typeName].container;
+    const QString &container = type.container;
     customWidgets[typeName] = (container == "2" || container == "3");
 
     output.writeStartElement(WIDGET);
@@ -201,8 +261,9 @@ void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<
 
     QXmlStreamAttributes attrs = input.attributes();
     for (QXmlStreamAttributes::const_iterator i=attrs.begin(); i!=attrs.end(); i++) {
-        if (!skippedProperties.contains(i->name().toString()))
-            widgetProperty(output, i->name().toString(), i->value().toString());
+        QString attrName = i->name().toString();
+        if (!skippedProperties.contains(attrName) && type.attributes.contains(attrName))
+            widgetProperty(output, attrName, i->value().toString(), type.attributes[attrName]);
     }
 
     while (!input.atEnd()) {
@@ -210,7 +271,8 @@ void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<
         if (token == QXmlStreamReader::StartElement) {
             if (equals(input, ATTRIBUTE)) {
                 QString attrName = attr(input, "Name");
-                widgetProperty(output, attrName, get(input));
+                if (type.attributes.contains(attrName))
+                    widgetProperty(output, attrName, get(input), type.attributes[attrName]);
             } else
                 vdomobjectToWidget(input, output, customWidgets);
         } else if (token == QXmlStreamReader::EndElement && !equals(input, ATTRIBUTE))

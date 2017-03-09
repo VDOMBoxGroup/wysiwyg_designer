@@ -21,19 +21,21 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-INCLUDEPATH += ../designerlib ../common
+INCLUDEPATH += ../designerlib ../common $(QTDIR)/tools/designer/src/lib/shared
 
 SOURCES += wysiwygeditor.cpp \
     ../common/typesloader.cpp \
     widgetsfile.cpp \
     ../common/path.cpp \
-    converter.cpp
+    converter.cpp \
+    ../common/util.cpp
 
 HEADERS += wysiwygeditor.h \
     ../common/typesloader.h \
     widgetsfile.h \
     ../common/path.h \
-    converter.h
+    converter.h \
+    ../common/util.h
 
 unix {
     target.path = /usr/lib
