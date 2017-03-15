@@ -69,7 +69,7 @@ QString VdomTypesPlugin::whatsThis() const
 
 bool VdomTypesPlugin::isContainer() const
 {
-    return (vdomType->container == "2" || vdomType->container == "3");
+    return vdomType->isContainer();
 }
 
 void writeGeometry(QXmlStreamWriter &xml)
@@ -151,7 +151,7 @@ VdomTypesCollection::VdomTypesCollection(QObject *parent) : QObject(parent)
     qDebug("Loaded %d types", types.size());
 
     for (QMap<QString, VdomTypeInfo>::const_iterator i=types.begin(); i!=types.end(); i++) {
-        if (i->container == "3")  // exclude top-level containers
+        if (i->isTopContainer())
             continue;
         VDOMWidget *w = createVdomWidget(i->typeName, NULL);
         if (w) {

@@ -109,7 +109,7 @@ void writeAttribute(QXmlStreamWriter &output, const QString &name, const QString
     output.writeEndElement();
 }
 
-QString readPropertyValue(QXmlStreamReader &input)
+QString readPropertyValue(QXmlStreamReader &input, const AttributeInfo &attr)
 {
     input.readNextStartElement();
     if (input.name() == "color") {
@@ -118,12 +118,28 @@ QString readPropertyValue(QXmlStreamReader &input)
         return QString::number(cc, 16);
     } else if (input.name() == "font") {
         return font(input).family();
+    } else if (input.name() == "bool") {
+        QString data = get(input);
+        if (data == "true")
+            return "1";
+        else if (data == "false")
+            return "0";
+        else
+            return data;
+    } else if (attr.isDropDown()) {
+        QString data = get(input);
+        QMap<int, QString>::const_iterator i = FindFirst(attr.dropDownValues, data);
+        if (i != attr.dropDownValues.end())
+            return attr.dropDownKeys[i.key()];
+        else
+            return data;
     } else
         return get(input);
 }
 
 void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
-                        QMap<QString, QString> &longProperties)
+                        QMap<QString, QString> &longProperties,
+                        const VdomTypeInfo &type)
 {
     QString name = attr(input, "name");
     if (skippedProperties.contains(name)) {
@@ -137,7 +153,11 @@ void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
         output.writeAttribute("width", QString::number(r.width()));
         output.writeAttribute("height", QString::number(r.height()));
     } else {
-        QString value = readPropertyValue(input);
+        if (!type.attributes.contains(name) || !type.attributes[name].visible) {
+            input.skipCurrentElement();
+            return;
+        }
+        QString value = readPropertyValue(input, type.attributes[name]);
         if (value.length() <= MAX_ATTR_LEN)
             output.writeAttribute(name, value);
         else
@@ -157,6 +177,8 @@ void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output)
         return;
     }
 
+    const VdomTypeInfo &type = types[typeName];
+
     output.writeStartElement(typeName.toUpper());
     output.writeAttribute("name", attr(input, "name"));
 
@@ -166,7 +188,7 @@ void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output)
             if (equals(input, WIDGET))
                 widgetToVdomobject(input, output);
             else if (equals(input, PROPERTY))
-                vdomobjectProperty(input, output, longProperties);
+                vdomobjectProperty(input, output, longProperties, type);
         } else if (token == QXmlStreamReader::EndElement && equals(input, WIDGET))
             break;
     }
@@ -210,13 +232,17 @@ void widgetProperty(QXmlStreamWriter &output, const QString &name, const QString
         output.writeTextElement("green", QString::number(c.green()));
         output.writeTextElement("blue", QString::number(c.blue()));
         output.writeEndElement();
-    }
-    else if (attr.isFont()) {
+    } else if (attr.isFont()) {
         output.writeStartElement("font");
         output.writeTextElement("family", value);
         output.writeEndElement();
-    }
-    else
+    } else if (attr.isDropDown()) {
+        QMap<int, QString>::const_iterator i = FindFirst(attr.dropDownKeys, value);
+        if (i == attr.dropDownKeys.end())
+            i = FindFirst(attr.dropDownKeys, attr.defaultValueStr);
+        if (i != attr.dropDownKeys.end())
+            output.writeTextElement("enum", attr.dropDownValues[i.key()]);
+    } else
         output.writeTextElement("cstring", value);
     output.writeEndElement();
 }
@@ -250,8 +276,7 @@ void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<
     if (customWidgets.isEmpty())
         output.writeTextElement("class", objectName);
 
-    const QString &container = type.container;
-    customWidgets[typeName] = (container == "2" || container == "3");
+    customWidgets[typeName] = type.isContainer();
 
     output.writeStartElement(WIDGET);
     output.writeAttribute("class", capitalize(typeName));

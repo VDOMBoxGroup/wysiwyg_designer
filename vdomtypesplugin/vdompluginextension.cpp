@@ -169,10 +169,17 @@ void VdomPluginPropertySheetExtension::setProperty(int index, const QVariant &va
     QString name = propertyName(index);
     if (name.isEmpty())
         return;
+
+    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
+    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->attributes.find(name);
+
     const char *propName = name.toLatin1().data();
     QVariant v = myWidget->property(propName);
     if (v.isValid()) {
-        myWidget->setProperty(propName, value);
+        if (attr != vdomType->attributes.end() && attr->isDropDown())
+            myWidget->setProperty(propName, attr->getDropDownValue(value));
+        else
+            myWidget->setProperty(propName, value);
         return;
     }
     int realIndex = myWidget->metaObject()->indexOfProperty(propName);
