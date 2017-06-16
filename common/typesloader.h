@@ -4,6 +4,7 @@
 #include <QStringList>
 #include <QMap>
 #include <QVariant>
+#include <QIcon>
 
 class AttributeInfo
 {
@@ -25,6 +26,10 @@ public:
     bool isMultiLine() const;
     bool isColor() const;
     bool isFont() const;
+    bool isFile() const;
+    bool isPageLink() const;
+    bool isObjectList() const;
+    bool isExternalEditor() const;
 
     bool equalsToDefault(const QVariant &v) const;
 
@@ -39,6 +44,8 @@ public:
     QString category;
     QString container;
     QStringList containers;
+    QString iconId;
+    QIcon icon;
     QMap<QString, AttributeInfo> attributes;
     QMap<QString, QMap<QString, QString> > lang;
 

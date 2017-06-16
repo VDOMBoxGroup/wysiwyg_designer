@@ -1,5 +1,7 @@
 #include "typesloader.h"
 #include "util.h"
+#include "path.h"
+#include <QStringList>
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QRegExp>
@@ -7,6 +9,8 @@
 
 #define TYPE "type"
 #define INFORMATION "information"
+#define RESOURCES "resources"
+#define RESOURCE "resource"
 #define ATTRIBUTES "attributes"
 #define ATTRIBUTE "attribute"
 #define LANGUAGES "languages"
@@ -16,7 +20,26 @@
 #define ID "ID"
 #define EN_US "en_us"
 
-QRegExp langRegExp("#Lang\\(([^\\)]+)\\)");
+static QRegExp langRegExp("#Lang\\(([^\\)]+)\\)");
+static QRegExp resRegExp("#Res\\(([^\\)]+)\\)");
+
+QMap<QString, QStringList> makeVisibleProperties()
+{
+    QMap<QString, QStringList> ret;
+    ret["text"].push_back("value");
+    ret["richtext"].push_back("value");
+    return ret;
+}
+
+QMap<QString, QStringList> visibleProperties = makeVisibleProperties();
+
+inline bool IsVisibleProperty(const QString &typeName, const QString &attrName)
+{
+    QMap<QString, QStringList>::const_iterator i = visibleProperties.find(typeName);
+    if (i != visibleProperties.end() && i->contains(attrName))
+        return true;
+    return false;
+}
 
 bool VdomTypeInfo::isContainer() const
 {
@@ -58,6 +81,26 @@ bool AttributeInfo::isFont() const
     return codeInterface.startsWith("Font");
 }
 
+bool AttributeInfo::isFile() const
+{
+    return codeInterface.startsWith("File");
+}
+
+bool AttributeInfo::isPageLink() const
+{
+    return codeInterface.startsWith("PageLink");
+}
+
+bool AttributeInfo::isObjectList() const
+{
+    return codeInterface.startsWith("ObjectList");
+}
+
+bool AttributeInfo::isExternalEditor() const
+{
+    return codeInterface.startsWith("ExternalEditor");
+}
+
 QVariant AttributeInfo::getDropDownValue(const QVariant &srcValue) const
 {
     if (srcValue.type() == QVariant::Int) {
@@ -80,7 +123,7 @@ bool AttributeInfo::equalsToDefault(const QVariant &v) const
     else if (QString(v.typeName()) == "qdesigner_internal::PropertySheetStringValue" &&
              qvariant_cast<qdesigner_internal::PropertySheetStringValue>(v).value() == defaultValueStr)
         return true;
-    else if (isColor() && parseColor(v.toString()) == parseColor(defaultValueStr))
+    else if (isColor() && ParseColor(v.toString()) == ParseColor(defaultValueStr))
         return true;
     else if (isFont() && *v.toString().split(',').begin() == *defaultValueStr.split(',').begin())
         return true;
@@ -89,11 +132,14 @@ bool AttributeInfo::equalsToDefault(const QVariant &v) const
         return true;
     else if (v.type() != QVariant::UserType && v.toString() == defaultValueStr)
         return true;
+    else if (isFile() && QString(v.typeName()) == "qdesigner_internal::PropertySheetPixmapValue" &&
+             qvariant_cast<qdesigner_internal::PropertySheetPixmapValue>(v).path() == DefaultPath("/"))
+        return true;
     else
         return false;
 }
 
-QVariant makeDefaultValue(const VdomTypeInfo &/*type*/, const AttributeInfo &attr)
+QVariant MakeDefaultValue(const VdomTypeInfo &/*type*/, const AttributeInfo &attr)
 {
     if (attr.attrName == "visible")
         return QVariant((attr.defaultValueStr == "1"));
@@ -101,10 +147,9 @@ QVariant makeDefaultValue(const VdomTypeInfo &/*type*/, const AttributeInfo &att
         return QVariant(attr.defaultValueStr.toInt());
     else if (attr.isColor()) {
         QVariant ret(QVariant::Color);
-        ret.setValue(parseColor(attr.defaultValueStr));
+        ret.setValue(ParseColor(attr.defaultValueStr));
         return ret;
-    }
-    else if (attr.isFont()) {
+    } else if (attr.isFont()) {
         QFont f;
         f.fromString(*attr.defaultValueStr.split(',').begin());
         return QVariant(f);
@@ -117,24 +162,27 @@ QVariant makeDefaultValue(const VdomTypeInfo &/*type*/, const AttributeInfo &att
         QMap<int, QString>::const_iterator i = FindFirst(attr.dropDownKeys, attr.defaultValueStr);
         if (i != attr.dropDownKeys.end())
             idx = i.key();
-        qdesigner_internal::PropertySheetEnumValue pse = qdesigner_internal::PropertySheetEnumValue(idx, e);
-        ret.setValue(pse);
+        ret.setValue(qdesigner_internal::PropertySheetEnumValue(idx, e));
+        return ret;
+    } else if (attr.isFile()) {
+        QVariant ret;
+        ret.setValue(qdesigner_internal::PropertySheetPixmapValue(DefaultPath("/")));
+        return ret;
+    } else {
+        QVariant ret;
+        ret.setValue(qdesigner_internal::PropertySheetStringValue(attr.defaultValueStr, false));
         return ret;
     }
-    return QVariant(attr.defaultValueStr);
 }
 
-inline QString get(QXmlStreamReader &xml)
+QString GetResId(const QString &data)
 {
-    return xml.readElementText().trimmed();
+    if (resRegExp.indexIn(data, 0) != -1)
+        return resRegExp.cap(1);
+    return QString();
 }
 
-inline bool equals(const QXmlStreamReader &xml, const QString &str)
-{
-    return (xml.name().compare(str, Qt::CaseInsensitive) == 0);
-}
-
-QString resolveLang(const VdomTypeInfo &typeInfo, const QString &data, const QString &langId)
+QString ResolveLang(const VdomTypeInfo &typeInfo, const QString &data, const QString &langId)
 {
     if (!typeInfo.lang.contains(langId))
         return data;
@@ -157,12 +205,12 @@ QMap<QString, QString> LoadLanguage(QXmlStreamReader &xml)
 {
     QMap<QString, QString> ret;
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, LANGUAGE))) {
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, LANGUAGE))) {
         if (xml.tokenType() == QXmlStreamReader::StartElement) {
             if (equals(xml, SENTENCE)) {
-                QXmlStreamAttributes attr = xml.attributes();
-                if (attr.hasAttribute(ID) && !attr.value(ID).isEmpty())
-                    ret[attr.value(ID).toString()] = get(xml);
+                QString sentId = attr(xml, ID);
+                if (!sentId.isEmpty())
+                    ret[sentId] = get(xml);
             }
         }
         xml.readNext();
@@ -174,12 +222,12 @@ QMap<QString, QMap<QString, QString> > LoadLanguages(QXmlStreamReader &xml)
 {
     QMap<QString, QMap<QString, QString> > ret;
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, LANGUAGES))) {
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, LANGUAGES))) {
         if (xml.tokenType() == QXmlStreamReader::StartElement) {
             if (equals(xml, LANGUAGE)) {
-                QXmlStreamAttributes attr = xml.attributes();
-                if (attr.hasAttribute(CODE) && !attr.value(CODE).isEmpty())
-                    ret[attr.value(CODE).toString().toLower()] = LoadLanguage(xml);
+                QString langId = attr(xml, CODE);
+                if (!langId.isEmpty())
+                    ret[langId.toLower()] = LoadLanguage(xml);
             }
         }
         xml.readNext();
@@ -204,7 +252,7 @@ AttributeInfo LoadAttribute(QXmlStreamReader &xml)
 {
     AttributeInfo ret;
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, ATTRIBUTE))) {
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, ATTRIBUTE))) {
         if (xml.tokenType() == QXmlStreamReader::StartElement) {
             if (equals(xml, "name")) ret.attrName = get(xml);
             else if (equals(xml, "displayname")) ret.displayName = get(xml);
@@ -224,7 +272,7 @@ AttributeInfo LoadAttribute(QXmlStreamReader &xml)
 void LoadAttributes(QXmlStreamReader &xml, VdomTypeInfo &ret)
 {
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, ATTRIBUTES))) {
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, ATTRIBUTES))) {
         if (xml.tokenType() == QXmlStreamReader::StartElement) {
             if (equals(xml, ATTRIBUTE)) {
                 AttributeInfo attr = LoadAttribute(xml);
@@ -235,16 +283,41 @@ void LoadAttributes(QXmlStreamReader &xml, VdomTypeInfo &ret)
     }
 }
 
+void LoadResource(QXmlStreamReader &xml, VdomTypeInfo &ret)
+{
+    if (attr(xml, ID) == ret.iconId) {
+        QPixmap p;
+        p.loadFromData(QByteArray::fromBase64(get(xml).toLatin1()));
+        ret.icon = QIcon(p);
+    }
+}
+
+void LoadResources(QXmlStreamReader &xml, VdomTypeInfo &ret)
+{
+    xml.readNext();
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, RESOURCES))) {
+        if (xml.tokenType() == QXmlStreamReader::StartElement) {
+            if (equals(xml, RESOURCE))
+                LoadResource(xml, ret);
+        }
+        xml.readNext();
+    }
+}
+
 void LoadInformation(QXmlStreamReader &xml, VdomTypeInfo &ret)
 {
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, INFORMATION))) {
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, INFORMATION))) {
         if (xml.tokenType() == QXmlStreamReader::StartElement) {
             if (equals(xml, "name")) ret.typeName = get(xml);
             else if (equals(xml, "displayname")) ret.displayName = get(xml);
             else if (equals(xml, "category")) ret.category = get(xml);
             else if (equals(xml, "container")) ret.container = get(xml);
-            else if (equals(xml, "containers")) ret.containers = get(xml).split(",");
+            else if (equals(xml, "containers")) {
+                ret.containers = get(xml).split(",");
+                for (QStringList::iterator i=ret.containers.begin(); i!=ret.containers.end(); i++)
+                    *i = i->trimmed();
+            } else if (equals(xml, "icon")) ret.iconId = GetResId(get(xml));
         }
         xml.readNext();
     }
@@ -254,7 +327,7 @@ VdomTypeInfo LoadType(QXmlStreamReader &xml)
 {
     VdomTypeInfo ret;
     xml.readNext();
-    while (!(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, TYPE))) {
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, TYPE))) {
         if (xml.tokenType() == QXmlStreamReader::StartElement) {
             if (equals(xml, INFORMATION))
                 LoadInformation(xml, ret);
@@ -262,6 +335,8 @@ VdomTypeInfo LoadType(QXmlStreamReader &xml)
                 LoadAttributes(xml, ret);
             else if (equals(xml, LANGUAGES))
                 ret.lang = LoadLanguages(xml);
+            else if (equals(xml, RESOURCES))
+                LoadResources(xml, ret);
         }
         xml.readNext();
     }
@@ -273,24 +348,26 @@ QMap<QString, VdomTypeInfo> LoadTypes(const QString &filename)
     QMap<QString, VdomTypeInfo> ret;
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        qDebug("Can't open types file \'%s\': %s", filename.toLatin1().constData(), file.errorString().toLatin1().constData());
+        qCritical("Can't open types file \'%s\': %s", filename.toLatin1().constData(), file.errorString().toLatin1().constData());
         return ret;
     }
 
     QXmlStreamReader xml(&file);
-    while (!xml.atEnd() && !xml.hasError()) {
+    while (!xml.atEnd()) {
         QXmlStreamReader::TokenType token = xml.readNext();
         if (token == QXmlStreamReader::StartElement) {
             if (equals(xml, TYPE)) {
                 VdomTypeInfo t = LoadType(xml);
-                t.displayName = resolveLang(t, t.displayName, EN_US);
-                t.category = resolveLang(t, t.category, EN_US);
+                t.displayName = ResolveLang(t, t.displayName, EN_US);
+                t.category = ResolveLang(t, t.category, EN_US);
                 for (QMap<QString, AttributeInfo>::iterator i=t.attributes.begin(); i!=t.attributes.end(); i++) {
-                    i->displayName = resolveLang(t, i->displayName, EN_US);
+                    i->displayName = ResolveLang(t, i->displayName, EN_US);
                     if (i->isDropDown())
                         for (QMap<int, QString>::iterator j=i->dropDownValues.begin(); j!=i->dropDownValues.end(); j++)
-                            *j = resolveLang(t, *j, EN_US);
-                    i->defaultValue = makeDefaultValue(t, *i);
+                            *j = ResolveLang(t, *j, EN_US);
+                    i->defaultValue = MakeDefaultValue(t, *i);
+                    if (IsVisibleProperty(t.typeName, i->attrName))
+                        i->visible = true;
                 }
                 ret[t.typeName] = t;
             }
@@ -299,3 +376,4 @@ QMap<QString, VdomTypeInfo> LoadTypes(const QString &filename)
 
     return ret;
 }
+
