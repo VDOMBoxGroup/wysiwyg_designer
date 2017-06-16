@@ -10,8 +10,9 @@ class DesignerSignalHandler
 {
 public:
     virtual void widgetManaged(QWidget*) = 0;
+    virtual void widgetRemoved(QWidget*) = 0;
     virtual void changed() = 0;
-    virtual void propertyChanged(const QString &name, const QVariant &value) = 0;
+    virtual void propertyChanged(const QObject &object, const QString &name, const QVariant &value) = 0;
 };
 
 class Designer
