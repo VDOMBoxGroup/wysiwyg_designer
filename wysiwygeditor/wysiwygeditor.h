@@ -2,23 +2,33 @@
 #define WYSIWYGEDITOR_H
 
 #include <QVariant>
+#include <QStringList>
+#include <QMap>
+#include <QByteArray>
 #include "designer.h"
 
 class QWidget;
+class LocalSocketClient;
+class VdomXmlItem;
+
+class VApplicationService;
+class VRestReply;
 
 class WysiwygEditor: public QObject, public DesignerSignalHandler
 {
     Q_OBJECT
 public:
-    WysiwygEditor();
+    WysiwygEditor(const QString &server = QString());
     virtual ~WysiwygEditor();
 
     Q_INVOKABLE void initialize(QWidget *parent,
                                 const QString &widgetsFileName = QString(),
-                                const QString &pluginPath = QString());
+                                const QString &pluginPath = QString(),
+                                const QString &resourcePath = QString());
 
     Q_INVOKABLE void setContent(const QString &content = QString());
-    Q_INVOKABLE QString getContent() const;
+    Q_INVOKABLE QString getContent(QStringList &resources) const;
+    Q_INVOKABLE QString getContent(QStringList &resources, QStringList &errors) const;
 
     Q_INVOKABLE QWidget* widgetBox() const;
     Q_INVOKABLE QWidget* form() const;
@@ -26,15 +36,41 @@ public:
     Q_INVOKABLE QWidget* propertyEditor() const;
 
 Q_SIGNALS:
-    void modelChanged();
-    void attributeChanged(const QString &name, const QVariant &value);
+    void modelChanged() const;
+    void attributeChanged(const QObject &object, const QString &name, const QVariant &value) const;
+    void widgetCreated(const QWidget &widget) const;
+    void widgetDeleted(const QWidget &widget) const;
 
 private:
     void widgetManaged(QWidget*);
+    void widgetRemoved(QWidget*);
     void changed();
-    void propertyChanged(const QString &name, const QVariant &value);
+    void propertyChanged(const QObject &object, const QString &name, const QVariant &value);
 
+private:
+    QString getResourcePath(const QString &id) const;
+    void sendWysiwygData(const QString &wysiwyg) const;
+    void sendResources(const QMap<QString, QByteArray> &res) const;
+    void sendResource(const QString &id, const QByteArray &content) const;
+    void queryWysiwyg(const QString &vdomxml) const;
+    void queryResources(const QStringList &res) const;
+    void processResourcesReply(const QString &r) const;
+
+private slots:
+    void onClientConnect();
+    void onWysiwygReply(VRestReply*);
+    void onResourcesReply(VRestReply*);
+
+private:
     Designer *designer;
+    LocalSocketClient *client;
+    QString vdomxmlstr;
+    VdomXmlItem *vdomxml;
+    QStringList resources;
+    QStringList errors;
+    QString resPath;
+    QString serverAddr;
+    const VApplicationService *service;
 
     Q_DISABLE_COPY(WysiwygEditor)
 };

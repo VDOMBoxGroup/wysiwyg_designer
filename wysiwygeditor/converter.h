@@ -1,12 +1,13 @@
 #ifndef CONVERTER_H
 #define CONVERTER_H
 
-#include <QString>
+#include <QStringList>
 #include "typesloader.h"
 
-QString qmlToVdomxml(const QString &qml);
-QString vdomxmlToQml(const QString &vdomxml);
+QString QmlToVdomxml(const QString &qml, QStringList &resources);
+QString QmlToVdomxml(const QString &qml, QStringList &resources, QStringList &errors);
+QString VdomxmlToQml(const QString &vdomxml);
 
-const QMap<QString, VdomTypeInfo>& getVdomTypes();
+const QMap<QString, VdomTypeInfo>& GetVdomTypes();
 
 #endif // CONVERTER_H

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui widgets network
 
 TARGET = wysiwygeditor
 TEMPLATE = lib
@@ -21,21 +21,27 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-INCLUDEPATH += ../designerlib ../common $(QTDIR)/tools/designer/src/lib/shared
+INCLUDEPATH += ../designerlib ../common $(QTDIR)/tools/designer/src/lib/shared ../../vdomlib/vdom/include ../../vdomlib/vdom/include/VdomCore
 
 SOURCES += wysiwygeditor.cpp \
     ../common/typesloader.cpp \
     widgetsfile.cpp \
     ../common/path.cpp \
     converter.cpp \
-    ../common/util.cpp
+    ../common/util.cpp \
+    ../common/protocol.cpp \
+    localsocketclient.cpp \
+    ../common/vdomxml.cpp
 
 HEADERS += wysiwygeditor.h \
     ../common/typesloader.h \
     widgetsfile.h \
     ../common/path.h \
     converter.h \
-    ../common/util.h
+    ../common/util.h \
+    ../common/protocol.h \
+    localsocketclient.h \
+    ../common/vdomxml.h
 
 unix {
     target.path = /usr/lib

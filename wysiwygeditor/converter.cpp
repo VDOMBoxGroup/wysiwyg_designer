@@ -1,6 +1,7 @@
 #include "converter.h"
 #include "path.h"
 #include "util.h"
+#include "vdomxml.h"
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QBuffer>
@@ -8,15 +9,15 @@
 #include <QMap>
 #include <QRect>
 #include <QFont>
+#include <QFileInfo>
 
 #define WIDGET "widget"
 #define PROPERTY "property"
 #define ATTRIBUTE "attribute"
-#define MAX_ATTR_LEN 20
 
-const QMap<QString, VdomTypeInfo>& getVdomTypes()
+const QMap<QString, VdomTypeInfo>& GetVdomTypes()
 {
-    static QMap<QString, VdomTypeInfo> types = LoadTypes(defaultPath(defaultTypesFileName));
+    static QMap<QString, VdomTypeInfo> types = LoadTypes(DefaultPath(defaultTypesFileName));
     return types;
 }
 
@@ -31,26 +32,6 @@ QSet<QString> makeSkippedProperties()
 }
 
 static QSet<QString> skippedProperties = makeSkippedProperties();
-
-inline bool equals(const QXmlStreamReader &xml, const QString &str)
-{
-    return (xml.name().compare(str, Qt::CaseInsensitive) == 0);
-}
-
-inline QString attr(const QXmlStreamReader &xml, const QString &name)
-{
-    return xml.attributes().value(name).toString();
-}
-
-inline QString get(QXmlStreamReader &xml)
-{
-    return xml.readElementText().trimmed();
-}
-
-inline QString capitalize(const QString &s)
-{
-    return s.left(1).toUpper() + s.mid(1);
-}
 
 // === QML -> VDOMXML
 
@@ -101,15 +82,7 @@ QFont font(QXmlStreamReader &input)
     return ret;
 }
 
-void writeAttribute(QXmlStreamWriter &output, const QString &name, const QString &value)
-{
-    output.writeStartElement("Attribute");
-    output.writeAttribute("Name", name);
-    output.writeCDATA(value);
-    output.writeEndElement();
-}
-
-QString readPropertyValue(QXmlStreamReader &input, const AttributeInfo &attr)
+QString readPropertyValue(QXmlStreamReader &input, const AttributeInfo &attr, QStringList &resources)
 {
     input.readNextStartElement();
     if (input.name() == "color") {
@@ -133,13 +106,18 @@ QString readPropertyValue(QXmlStreamReader &input, const AttributeInfo &attr)
             return attr.dropDownKeys[i.key()];
         else
             return data;
+    } else if (attr.isFile()) {
+        QString data = get(input);
+        if (QFileInfo(data).exists() && !resources.contains(data))
+            resources.push_back(data);
+        return data;
     } else
         return get(input);
 }
 
 void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
                         QMap<QString, QString> &longProperties,
-                        const VdomTypeInfo &type)
+                        const VdomTypeInfo &type, QStringList &resources)
 {
     QString name = attr(input, "name");
     if (skippedProperties.contains(name)) {
@@ -157,49 +135,59 @@ void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
             input.skipCurrentElement();
             return;
         }
-        QString value = readPropertyValue(input, type.attributes[name]);
-        if (value.length() <= MAX_ATTR_LEN)
-            output.writeAttribute(name, value);
-        else
+        QString value = readPropertyValue(input, type.attributes[name], resources);
+        if (IsLongAttribute(value))
             longProperties[name] = value;
+        else
+            output.writeAttribute(name, value);
     }
 }
 
-void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output)
+void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output,
+                        const QString &parentTypeName, QStringList &resources,
+                        QStringList &errors)
 {
     QMap<QString, QString> longProperties;
 
-    const QMap<QString, VdomTypeInfo> &types = getVdomTypes();
+    const QMap<QString, VdomTypeInfo> &types = GetVdomTypes();
 
     QString typeName = attr(input, "class").toLower();
     if (!types.contains(typeName)) {
+        errors.append(QString("Unknown VDOM type \'%1\'").arg(typeName));
         input.skipCurrentElement();
         return;
     }
 
+    QString objName = attr(input, "name");
+
     const VdomTypeInfo &type = types[typeName];
+    if (!parentTypeName.isEmpty() && !type.containers.contains(parentTypeName)) {
+        errors.append(QString("Object \'%1\' of type \'%2\' can't be placed inside \'%3\'")
+                      .arg(objName).arg(capitalize(typeName)).arg(capitalize(parentTypeName)));
+        input.skipCurrentElement();
+        return;
+    }
 
     output.writeStartElement(typeName.toUpper());
-    output.writeAttribute("name", attr(input, "name"));
+    output.writeAttribute("name", objName);
 
     while (!input.atEnd()) {
         QXmlStreamReader::TokenType token = input.readNext();
         if (token == QXmlStreamReader::StartElement) {
             if (equals(input, WIDGET))
-                widgetToVdomobject(input, output);
+                widgetToVdomobject(input, output, typeName, resources, errors);
             else if (equals(input, PROPERTY))
-                vdomobjectProperty(input, output, longProperties, type);
+                vdomobjectProperty(input, output, longProperties, type, resources);
         } else if (token == QXmlStreamReader::EndElement && equals(input, WIDGET))
             break;
     }
 
-    for (QMap<QString, QString>::const_iterator i=longProperties.begin(); i!=longProperties.end(); i++)
-        writeAttribute(output, i.key(), i.value());
+    WriteLongAttributes(output, longProperties);
 
     output.writeEndElement();
 }
 
-QString qmlToVdomxml(const QString &qml)
+QString QmlToVdomxml(const QString &qml, QStringList &resources, QStringList &errors)
 {
     QXmlStreamReader input(qml);
 
@@ -211,10 +199,16 @@ QString qmlToVdomxml(const QString &qml)
     while (!input.atEnd()) {
         input.readNextStartElement();
         if (input.tokenType() == QXmlStreamReader::StartElement && equals(input, WIDGET))
-            widgetToVdomobject(input, output);
+            widgetToVdomobject(input, output, "", resources, errors);
     }
 
     return QString(buffer.buffer()).trimmed();
+}
+
+QString QmlToVdomxml(const QString &qml, QStringList &resources)
+{
+    QStringList e;
+    return QmlToVdomxml(qml, resources, e);
 }
 
 // === VDOMXML -> QML
@@ -226,7 +220,7 @@ void widgetProperty(QXmlStreamWriter &output, const QString &name, const QString
     if (attr.isNumber())
         output.writeTextElement("number", value);
     else if (attr.isColor()) {
-        QColor c = parseColor(value);
+        QColor c = ParseColor(value);
         output.writeStartElement("color");
         output.writeTextElement("red", QString::number(c.red()));
         output.writeTextElement("green", QString::number(c.green()));
@@ -242,7 +236,9 @@ void widgetProperty(QXmlStreamWriter &output, const QString &name, const QString
             i = FindFirst(attr.dropDownKeys, attr.defaultValueStr);
         if (i != attr.dropDownKeys.end())
             output.writeTextElement("enum", attr.dropDownValues[i.key()]);
-    } else
+    } else if (attr.isFile())
+        output.writeTextElement("pixmap", value);
+    else
         output.writeTextElement("cstring", value);
     output.writeEndElement();
 }
@@ -262,7 +258,7 @@ void widgetGeometry(QXmlStreamReader &input, QXmlStreamWriter &output)
 
 void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<QString, bool> &customWidgets)
 {
-    const QMap<QString, VdomTypeInfo> &types = getVdomTypes();
+    const QMap<QString, VdomTypeInfo> &types = GetVdomTypes();
 
     QString typeName = input.name().toString().toLower();
     if (!types.contains(typeName)) {
@@ -322,7 +318,7 @@ void writeCustomWidgets(QXmlStreamWriter &output, const QMap<QString, bool> &cus
     output.writeEndElement();
 }
 
-QString vdomxmlToQml(const QString &vdomxml)
+QString VdomxmlToQml(const QString &vdomxml)
 {
     QXmlStreamReader input(vdomxml);
 
