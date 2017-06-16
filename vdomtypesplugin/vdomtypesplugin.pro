@@ -6,6 +6,8 @@
 
 CONFIG += designer plugin
 
+QT += webkit network svg
+
 TARGET = vdomtypesplugin
 TEMPLATE = lib
 
@@ -30,7 +32,10 @@ SOURCES += vdomtypesplugin.cpp \
     ../common/typesloader.cpp \
     ../common/path.cpp \
     vdomclassfactory.cpp \
-    ../common/util.cpp
+    ../common/util.cpp \
+    ../common/protocol.cpp \
+    listener.cpp \
+    ../common/wysiwyg.cpp
 
 HEADERS += vdomtypesplugin.h\
         vdomtypesplugin_global.h \
@@ -40,7 +45,10 @@ HEADERS += vdomtypesplugin.h\
     ../common/path.h \
     vdomclassfactory.h \
     vdomclasses.h \
-    ../common/util.h
+    ../common/util.h \
+    ../common/protocol.h \
+    listener.h \
+    ../common/wysiwyg.h
 
 unix {
     target.path = /usr/lib

@@ -1,14 +1,21 @@
 #include "vdomtypesplugin.h"
 #include "vdompluginextension.h"
 #include "path.h"
+#include "util.h"
 #include "vdomclassfactory.h"
+#include "protocol.h"
+#include "wysiwyg.h"
 #include <QtPlugin>
 #include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QExtensionFactory>
 #include <QtDesigner/QDesignerPropertySheetExtension>
+#include <QtDesigner/QDesignerPropertyEditorInterface>
 #include <QXmlStreamWriter>
 #include <QBuffer>
+
+QDesignerFormEditorInterface *VdomTypesPlugin::core = NULL;
 
 VdomTypesPlugin::VdomTypesPlugin(const VdomTypeInfo &typeInfo, const VDOMWidget &widget, QObject *parent)
     : QObject(parent), initialized(false), vdomType(new VdomTypeInfo(typeInfo))
@@ -20,6 +27,8 @@ void VdomTypesPlugin::initialize(QDesignerFormEditorInterface *core)
 {
     if (initialized)
         return;
+
+    setCore(core);
 
     QExtensionManager *manager = core->extensionManager();
     QExtensionFactory *factory = new VdomPluginExtensionFactory(manager);
@@ -54,7 +63,7 @@ QString VdomTypesPlugin::group() const
 
 QIcon VdomTypesPlugin::icon() const
 {
-    return QIcon();
+    return vdomType->icon;
 }
 
 QString VdomTypesPlugin::toolTip() const
@@ -121,7 +130,7 @@ QString VdomTypesPlugin::domXml() const
     xml.writeTextElement("class", className);
     xml.writeStartElement("propertyspecifications");
     for (QMap<QString, AttributeInfo>::const_iterator i=vdomType->attributes.begin(); i!=vdomType->attributes.end(); i++)
-        if ((i->isTextField() || i->isMultiLine()) && !invisibleProperties.contains(i->attrName)) {
+        if ((i->isTextField() || i->isMultiLine() || i->isPageLink() || i->isObjectList() || i->isExternalEditor()) && !invisibleProperties.contains(i->attrName)) {
             xml.writeStartElement("stringpropertyspecification");
             xml.writeAttribute("name", i->attrName);
             xml.writeAttribute("notr", "true");
@@ -144,9 +153,36 @@ QString VdomTypesPlugin::includeFile() const
 
 // ---
 
+QObject* FindWidget(QObject *parent, const QString &name)
+{
+//    qDebug("\n---");
+//    qDebug("Find %s (%s)", name.toLatin1().constData(), parent->objectName().toLatin1().constData());
+    if (!parent)
+        return NULL;
+    if (name == parent->objectName())
+        return parent;
+    QObjectList children = parent->children();
+//    qDebug("Find 1: %d", children.size());
+    for (QObjectList::const_iterator i=children.begin(); i!=children.end(); i++) {
+//        qDebug("%s", (*i)->objectName().toLatin1().constData());
+        if (name == (*i)->objectName()) {
+//            qDebug("Found");
+            return *i;
+        }
+    }
+//    qDebug("Find 2");
+    for (QObjectList::const_iterator i=children.begin(); i!=children.end(); i++) {
+        QObject *obj = FindWidget(*i, name);
+        if (obj)
+            return obj;
+    }
+//    qDebug("Find 3");
+    return NULL;
+}
+
 VdomTypesCollection::VdomTypesCollection(QObject *parent) : QObject(parent)
 {
-    QMap<QString, VdomTypeInfo> types = LoadTypes(defaultPath(defaultTypesFileName));
+    QMap<QString, VdomTypeInfo> types = LoadTypes(DefaultPath(defaultTypesFileName));
 
     qDebug("Loaded %d types", types.size());
 
@@ -159,11 +195,88 @@ VdomTypesCollection::VdomTypesCollection(QObject *parent) : QObject(parent)
             delete w;
         }
     }
+
+    connect(&listener, SIGNAL(receivedWysiwyg(const QString&)), this, SLOT(onWysiwyg(const QString&)));
 }
 
 QList<QDesignerCustomWidgetInterface*> VdomTypesCollection::customWidgets() const
 {
     return widgets;
+}
+
+bool WidgetZindexCompare(VdomTypesWidget *w1, VdomTypesWidget *w2)
+{
+    return w1->zindex() < w2->zindex();
+}
+
+void SortTypesWidgets(VdomTypesWidget *top)
+{
+    QList<VdomTypesWidget*> ch = top->findChildren<VdomTypesWidget*>();
+    qSort(ch.begin(), ch.end(), WidgetZindexCompare);
+    top->raise();
+    for (QList<VdomTypesWidget*>::iterator i=ch.begin(); i!=ch.end(); i++)
+        (*i)->raise();
+}
+
+void UpdateTypesWidgets(VdomTypesWidget *top)
+{
+    top->updateWysiwyg();
+    QList<VdomTypesWidget*> ch = top->findChildren<VdomTypesWidget*>();
+    for (QList<VdomTypesWidget*>::iterator i=ch.begin(); i!=ch.end(); i++)
+        (*i)->updateWysiwyg();
+}
+
+// workaround Designer issue with loost focus
+void UpdateSelection(QDesignerFormEditorInterface *core)
+{
+    QWidget *current = qobject_cast<QWidget*>(core->propertyEditor()->object());
+    if (current) {
+        core->formWindowManager()->activeFormWindow()->clearSelection();
+        core->formWindowManager()->activeFormWindow()->selectWidget(current);
+    }
+}
+
+void VdomTypesCollection::onWysiwyg(const QString &wysiwyg)
+{
+    QDesignerFormEditorInterface *core = VdomTypesPlugin::getCore();
+    if (!core) {
+        qDebug("Designer core is not available");
+        return;
+    }
+
+    if (wysiwyg == "update") {
+        VdomTypesWidget *top = qobject_cast<VdomTypesWidget*>(core->formWindowManager()->activeFormWindow()->mainContainer());
+        if (top) {
+            UpdateTypesWidgets(top);
+            SortTypesWidgets(top);
+        }
+        UpdateSelection(core);
+        return;
+    }
+
+    bool changed = false;
+    QList<WItem> w = ParseWysiwyg(wysiwyg);
+    for (QList<WItem>::const_iterator i=w.begin(); i!=w.end(); i++) {
+//        qDebug("Plugin: wysiwyg \'%s\'", i->objectName().toLatin1().constData());
+        QObject *obj = FindWidget(core->formWindowManager()->activeFormWindow()->mainContainer(), i->objectName());
+        if (obj) {
+            VdomTypesWidget *tw = qobject_cast<VdomTypesWidget*>(obj);
+            if (tw) {
+                tw->setWysiwyg(*i);
+                changed = true;
+            }
+        }
+    }
+
+    if (changed) {
+        VdomTypesWidget *top = qobject_cast<VdomTypesWidget*>(core->formWindowManager()->activeFormWindow()->mainContainer());
+        if (top) {
+            //qDebug("changed");
+            top->updateZindex();
+            SortTypesWidgets(top);
+        }
+        UpdateSelection(core);
+    }
 }
 
 Q_EXPORT_PLUGIN2(customwidgetsplugin, VdomTypesCollection)

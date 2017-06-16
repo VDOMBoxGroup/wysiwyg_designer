@@ -6,6 +6,7 @@
 #include <QSharedPointer>
 #include "vdomtypesplugin_global.h"
 #include "typesloader.h"
+#include "listener.h"
 
 class VDOMWidget;
 
@@ -29,10 +30,15 @@ public:
     QWidget *createWidget(QWidget *parent);
     void initialize(QDesignerFormEditorInterface *core);
 
+    static void setCore(QDesignerFormEditorInterface *d) { if (!core) core = d; }
+    static QDesignerFormEditorInterface* getCore() { return core; }
+
 private:
     bool initialized;
     QSharedPointer<VdomTypeInfo> vdomType;
     QString className;
+
+    static QDesignerFormEditorInterface *core;
 };
 
 class VdomTypesCollection: public QObject, public QDesignerCustomWidgetCollectionInterface
@@ -45,8 +51,12 @@ public:
 
     virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const;
 
+private slots:
+    void onWysiwyg(const QString &wysiwyg);
+
 private:
     QList<QDesignerCustomWidgetInterface*> widgets;
+    Listener listener;
 };
 
 #endif // VDOMTYPESPLUGIN_H

@@ -134,8 +134,9 @@ bool VdomPluginPropertySheetExtension::isVisible(int index) const
     QString name = propertyName(index);
     if (invisibleProperties.contains(name))
         return false;
-    QMap<QString, AttributeInfo>::const_iterator i = myWidget->getVdomType()->attributes.find(name);
-    if (i != myWidget->getVdomType()->attributes.end() && !(i->visible))
+    const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
+    QMap<QString, AttributeInfo>::const_iterator i = vdomType->attributes.find(name);
+    if (i != vdomType->attributes.end() && !(i->visible))
         return false;
     return true;
 }
