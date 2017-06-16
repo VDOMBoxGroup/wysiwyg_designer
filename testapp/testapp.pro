@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -24,20 +24,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-INCLUDEPATH += ../wysiwygeditor ../designerlib
+INCLUDEPATH += ../wysiwygeditor ../designerlib ../common
 
 SOURCES += main.cpp\
-        dialog.cpp
+        dialog.cpp \
+    ../common/path.cpp \
+    ../common/util.cpp
 
-HEADERS  += dialog.h
-
-LIBS += -L../debug -lwysiwygeditor -ldesignerlib
+HEADERS  += dialog.h \
+    ../common/path.h \
+    ../common/util.h
 
 FORMS    += dialog.ui
 
 CONFIG(release, debug|release) {
-    LIBS += -lQtDesignerComponents
+    LIBS += -L../release -L../../vdomlib/vdom/lib -lwysiwygeditor -ldesignerlib -lQtDesignerComponents -lVdomCore
 }
 CONFIG(debug, debug|release) {
-    LIBS += -lQtDesignerComponentsd
+    LIBS += -L../debug -L../../vdomlib/vdom/lib -lwysiwygeditor -ldesignerlib -lQtDesignerComponentsd -lVdomCored
 }

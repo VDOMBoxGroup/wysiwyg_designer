@@ -15,11 +15,15 @@ class Dialog : public QDialog
 
 public:
     explicit Dialog(QWidget *parent = 0);
+    bool init();
     ~Dialog();
 
 private slots:
     void onChanged();
-    void onAttrChanged(const QString &name, const QVariant &value);
+    void onAttrChanged(const QObject &object, const QString &name, const QVariant &value);
+
+private:
+    void setContent();
 
 private:
     Ui::Dialog *ui;
