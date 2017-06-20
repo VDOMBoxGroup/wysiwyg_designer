@@ -52,7 +52,6 @@ VdomPluginPropertySheetExtension::VdomPluginPropertySheetExtension(VdomTypesWidg
     registerProperty("geometry");
     for (QMap<QString, QString>::const_iterator i=propertyGroups.begin(); i!=propertyGroups.end(); i++)
         registerProperties(i.key());
-
 }
 
 void VdomPluginPropertySheetExtension::registerProperties(const QString &groupName)
@@ -61,11 +60,11 @@ void VdomPluginPropertySheetExtension::registerProperties(const QString &groupNa
     for (QMap<QString, AttributeInfo>::const_iterator i=vdomType->attributes.begin(); i!=vdomType->attributes.end(); i++) {
         if (i->colorGroup != groupName)
             continue;
-        registerProperty(i->attrName);
-        const char* propName = i->attrName.toLatin1().constData();
-        if (myWidget->property(propName).isValid())
-            continue;
-        myWidget->setProperty(propName, i->defaultValue);
+        QString attrName = TranslateAttributeVdomToQml(vdomType->typeName, i->attrName);
+        registerProperty(attrName);
+        const char* propName = attrName.toLatin1().constData();
+        if (!myWidget->property(propName).isValid())
+            myWidget->setProperty(propName, i->defaultValue);
     }
 }
 
@@ -99,7 +98,7 @@ QString VdomPluginPropertySheetExtension::propertyName(int index) const
 QString VdomPluginPropertySheetExtension::propertyGroup(int index) const
 {
     const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
-    QMap<QString, AttributeInfo>::const_iterator i = vdomType->attributes.find(propertyName(index));
+    QMap<QString, AttributeInfo>::const_iterator i = vdomType->findAttribute(propertyName(index));
     if (i != vdomType->attributes.end()) {
         QMap<QString, QString>::const_iterator j = propertyGroups.find(i->colorGroup);
         if (j != propertyGroups.end())
@@ -115,13 +114,13 @@ void VdomPluginPropertySheetExtension::setPropertyGroup(int /*index*/, const QSt
 bool VdomPluginPropertySheetExtension::hasReset(int index) const
 {
     const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
-    return vdomType->attributes.contains(propertyName(index));
+    return vdomType->hasAttribute(propertyName(index));
 }
 
 bool VdomPluginPropertySheetExtension::reset(int index)
 {
     const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
-    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->attributes.find(propertyName(index));
+    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->findAttribute(propertyName(index));
     if (attr != vdomType->attributes.end()) {
         setProperty(index, attr->defaultValue);
         return true;
@@ -135,7 +134,7 @@ bool VdomPluginPropertySheetExtension::isVisible(int index) const
     if (invisibleProperties.contains(name))
         return false;
     const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
-    QMap<QString, AttributeInfo>::const_iterator i = vdomType->attributes.find(name);
+    QMap<QString, AttributeInfo>::const_iterator i = vdomType->findAttribute(name);
     if (i != vdomType->attributes.end() && !(i->visible))
         return false;
     return true;
@@ -172,7 +171,7 @@ void VdomPluginPropertySheetExtension::setProperty(int index, const QVariant &va
         return;
 
     const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
-    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->attributes.find(name);
+    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->findAttribute(name);
 
     const char *propName = name.toLatin1().data();
     QVariant v = myWidget->property(propName);
@@ -191,7 +190,7 @@ bool VdomPluginPropertySheetExtension::isChanged(int index) const
 {
     const QSharedPointer<VdomTypeInfo> &vdomType = myWidget->getVdomType();
     QVariant value = property(index);
-    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->attributes.find(propertyName(index));
+    QMap<QString, AttributeInfo>::const_iterator attr = vdomType->findAttribute(propertyName(index));
     if (attr != vdomType->attributes.end() && attr->equalsToDefault(value))
         return false;
     return true;

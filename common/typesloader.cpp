@@ -41,6 +41,45 @@ inline bool IsVisibleProperty(const QString &typeName, const QString &attrName)
     return false;
 }
 
+QMap<QString, QMap<QString, QString> > makeTranslationVdomToQml()
+{
+    QMap<QString, QMap<QString, QString> > ret;
+    ret["xmldialog"]["modal"] = "is_modal";
+    return ret;
+}
+
+QMap<QString, QMap<QString, QString> > makeTranslationQmlToVdom()
+{
+    QMap<QString, QMap<QString, QString> > ret;
+    ret["xmldialog"]["is_modal"] = "modal";
+    return ret;
+}
+
+static QMap<QString, QMap<QString, QString> > translationVdomToQml = makeTranslationVdomToQml();
+static QMap<QString, QMap<QString, QString> > translationQmlToVdom = makeTranslationQmlToVdom();
+
+static QString TranslateAttribute(const QString &typeName, const QString &attrName,
+                                  const QMap<QString, QMap<QString, QString> > &m)
+{
+    QMap<QString, QMap<QString, QString> >::const_iterator t = m.find(typeName);
+    if (t != m.end()) {
+        QMap<QString, QString>::const_iterator a = t->find(attrName);
+        if (a != t->end())
+            return a.value();
+    }
+    return attrName;
+}
+
+QString TranslateAttributeVdomToQml(const QString &typeName, const QString &attrName)
+{
+    return TranslateAttribute(typeName, attrName, translationVdomToQml);
+}
+
+QString TranslateAttributeQmlToVdom(const QString &typeName, const QString &attrName)
+{
+    return TranslateAttribute(typeName, attrName, translationQmlToVdom);
+}
+
 bool VdomTypeInfo::isContainer() const
 {
     return (container == "2" || container == "3");
@@ -49,6 +88,18 @@ bool VdomTypeInfo::isContainer() const
 bool VdomTypeInfo::isTopContainer() const
 {
     return (container == "3");
+}
+
+QMap<QString, AttributeInfo>::const_iterator VdomTypeInfo::findAttribute(const QString &name, bool translate) const
+{
+    QString _name = translate ? TranslateAttributeQmlToVdom(typeName, name) : name;
+    return attributes.find(_name);
+}
+
+bool VdomTypeInfo::hasAttribute(const QString &name, bool translate) const
+{
+    QString _name = translate ? TranslateAttributeQmlToVdom(typeName, name) : name;
+    return attributes.contains(_name);
 }
 
 bool AttributeInfo::isDropDown() const

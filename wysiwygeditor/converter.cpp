@@ -131,6 +131,7 @@ void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
         output.writeAttribute("width", QString::number(r.width()));
         output.writeAttribute("height", QString::number(r.height()));
     } else {
+        name = TranslateAttributeQmlToVdom(type.typeName, name);
         if (!type.attributes.contains(name) || !type.attributes[name].visible) {
             input.skipCurrentElement();
             return;
@@ -213,10 +214,11 @@ QString QmlToVdomxml(const QString &qml, QStringList &resources)
 
 // === VDOMXML -> QML
 
-void widgetProperty(QXmlStreamWriter &output, const QString &name, const QString &value, const AttributeInfo &attr)
+void widgetProperty(QXmlStreamWriter &output, const QString &name, const QString &value,
+                    const QString typeName, const AttributeInfo &attr)
 {
     output.writeStartElement(PROPERTY);
-    output.writeAttribute("name", name);
+    output.writeAttribute("name", TranslateAttributeVdomToQml(typeName, name));
     if (attr.isNumber())
         output.writeTextElement("number", value);
     else if (attr.isColor()) {
@@ -284,7 +286,7 @@ void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<
     for (QXmlStreamAttributes::const_iterator i=attrs.begin(); i!=attrs.end(); i++) {
         QString attrName = i->name().toString();
         if (!skippedProperties.contains(attrName) && type.attributes.contains(attrName))
-            widgetProperty(output, attrName, i->value().toString(), type.attributes[attrName]);
+            widgetProperty(output, attrName, i->value().toString(), typeName, type.attributes[attrName]);
     }
 
     while (!input.atEnd()) {
@@ -293,7 +295,7 @@ void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<
             if (equals(input, ATTRIBUTE)) {
                 QString attrName = attr(input, "Name");
                 if (type.attributes.contains(attrName))
-                    widgetProperty(output, attrName, get(input), type.attributes[attrName]);
+                    widgetProperty(output, attrName, get(input), typeName, type.attributes[attrName]);
             } else
                 vdomobjectToWidget(input, output, customWidgets);
         } else if (token == QXmlStreamReader::EndElement && !equals(input, ATTRIBUTE))

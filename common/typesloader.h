@@ -51,8 +51,12 @@ public:
 
     bool isContainer() const;
     bool isTopContainer() const;
+    QMap<QString, AttributeInfo>::const_iterator findAttribute(const QString &name, bool translate = true) const;
+    bool hasAttribute(const QString &name, bool translate = true) const;
 };
 
 QMap<QString, VdomTypeInfo> LoadTypes(const QString &filename);
+QString TranslateAttributeVdomToQml(const QString &typeName, const QString &attrName);
+QString TranslateAttributeQmlToVdom(const QString &typeName, const QString &attrName);
 
 #endif // TYPESLOADER_H
