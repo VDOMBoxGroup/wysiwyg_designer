@@ -2,6 +2,9 @@
 #include "ui_dialog.h"
 #include <QMessageBox>
 
+#define SERVER_ADDR "localhost:82"
+#define APP_ID "7f459762-e1ba-42d3-a0e1-e74beda2eb85"
+
 //"          <Attribute Name=\"htmlcode\"><![CDATA[<TABLE width=\"100%\" height=\"90%\" style=\"border:1px solid #d7dce5;padding:21px 19px;margin-bottom:20px\"><tr><td></td></tr></table>]]]]><![CDATA[>]]></Attribute>"
 
 static const QString content = "<CONTAINER name=\"container2\" top=\"50\" height=\"246\" width=\"461\" left=\"50\">"
@@ -15,7 +18,7 @@ static const QString content = "<CONTAINER name=\"container2\" top=\"50\" height
 "        </TEXT>"
 "      </CONTAINER>";
 
-Dialog::Dialog(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog)
+Dialog::Dialog(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog), editor(SERVER_ADDR, APP_ID)
 {
     ui->setupUi(this);
 }

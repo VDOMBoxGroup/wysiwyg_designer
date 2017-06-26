@@ -13,9 +13,7 @@
 #include <QRegExp>
 #include <QXmlStreamReader>
 
-#define SERVER_ADDR "localhost:82"
-#define APP_ID "7f459762-e1ba-42d3-a0e1-e74beda2eb85"
-#define OBJ_ID "5073ff75-da99-44fb-a5d7-e44e5ab28598"
+#define OBJ_ID "API"
 #define WYSIWYG_ACTION "wysiwyg"
 #define RES_ACTION "get_resources"
 
@@ -40,11 +38,12 @@ static const QString defaultContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?
 " <connections/>"
 "</ui>";
 
-WysiwygEditor::WysiwygEditor(const QString &server) : designer(NULL), client(NULL)
+WysiwygEditor::WysiwygEditor(const QString &server, const QString &app) : designer(NULL), client(NULL)
 {
     vdomxml = new VdomXmlItem();
     service = new VApplicationService();
-    serverAddr = server.isEmpty() ? SERVER_ADDR : server;
+    serverAddr = server;
+    appId = app;
 }
 
 WysiwygEditor::~WysiwygEditor()
@@ -225,7 +224,7 @@ void WysiwygEditor::onClientConnect()
 
 void WysiwygEditor::queryWysiwyg(const QString &vdomxml) const
 {
-    VRestReply *r = service->restApiCall2(serverAddr, APP_ID, OBJ_ID, WYSIWYG_ACTION, vdomxml);
+    VRestReply *r = service->restApiCall2(serverAddr, appId, OBJ_ID, WYSIWYG_ACTION, vdomxml);
     connect(r, SIGNAL(finished(VRestReply*)), this, SLOT(onWysiwygReply(VRestReply*)));
 }
 
@@ -242,7 +241,7 @@ void WysiwygEditor::onWysiwygReply(VRestReply *r)
 
 void WysiwygEditor::queryResources(const QStringList &res) const
 {
-    VRestReply *r = service->restApiCall2(serverAddr, APP_ID, OBJ_ID, RES_ACTION, res.join(","));
+    VRestReply *r = service->restApiCall2(serverAddr, appId, OBJ_ID, RES_ACTION, res.join(","));
     connect(r, SIGNAL(finished(VRestReply*)), this, SLOT(onResourcesReply(VRestReply*)));
 }
 

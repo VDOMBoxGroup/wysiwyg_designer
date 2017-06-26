@@ -18,7 +18,7 @@ class WysiwygEditor: public QObject, public DesignerSignalHandler
 {
     Q_OBJECT
 public:
-    WysiwygEditor(const QString &server = QString());
+    WysiwygEditor(const QString &server, const QString &app);
     virtual ~WysiwygEditor();
 
     Q_INVOKABLE void initialize(QWidget *parent,
@@ -70,6 +70,7 @@ private:
     QStringList errors;
     QString resPath;
     QString serverAddr;
+    QString appId;
     const VApplicationService *service;
 
     Q_DISABLE_COPY(WysiwygEditor)
