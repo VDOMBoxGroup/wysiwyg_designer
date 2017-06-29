@@ -261,7 +261,7 @@ void VdomTypesCollection::onWysiwyg(const QString &wysiwyg)
         QObject *obj = FindWidget(core->formWindowManager()->activeFormWindow()->mainContainer(), i->objectName());
         if (obj) {
             VdomTypesWidget *tw = qobject_cast<VdomTypesWidget*>(obj);
-            if (tw) {
+            if (tw && !i->isEmpty()) {
                 tw->setWysiwyg(*i);
                 changed = true;
             }

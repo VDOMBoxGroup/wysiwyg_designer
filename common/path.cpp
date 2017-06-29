@@ -38,10 +38,12 @@ QString DefaultPath(const QString &p)
 
 QString DefaultResourcePath()
 {
-    return TempDirPath(defaultResourcePath);
+    static QString p = TempDirPath(defaultResourcePath);
+    return p;
 }
 
 QString DefaultWidgetsFilePath()
 {
-    return TempDirPath(defaultWidgetsFileName);
+    static QString p = TempDirPath(defaultWidgetsFileName);
+    return p;
 }

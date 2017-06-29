@@ -108,7 +108,7 @@ QString readPropertyValue(QXmlStreamReader &input, const AttributeInfo &attr, QS
             return data;
     } else if (attr.isFile()) {
         QString data = get(input);
-        if (QFileInfo(data).exists() && !resources.contains(data))
+        if (!data.startsWith(DefaultResourcePath()) && QFileInfo(data).exists() && !resources.contains(data))
             resources.push_back(data);
         return data;
     } else
