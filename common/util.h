@@ -51,7 +51,8 @@ inline QString capitalize(const QString &s)
 
 QString GetElementXml(QXmlStreamReader &xml);
 
-void WriteFile(const QString &fname, const QByteArray &data);
-void WriteFile(const QString &fname, const QString &data);
+bool WriteFile(const QString &fname, const QByteArray &data, bool binary = false);
+bool WriteFile(const QString &fname, const QString &data, bool binary = false);
+QByteArray ReadFile(const QString &fname, bool binary = false);
 
 #endif // UTIL_H

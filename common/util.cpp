@@ -48,19 +48,31 @@ QString GetElementXml(QXmlStreamReader &xml)
     return buffer.buffer();
 }
 
-void WriteFile(const QString &fname, const QByteArray &data)
+bool WriteFile(const QString &fname, const QByteArray &data, bool binary)
 {
     QFile file(fname);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+    if (!file.open(binary ? QIODevice::WriteOnly : QIODevice::WriteOnly | QIODevice::Text)) {
         qDebug("Can't open file \'%s\': %s", fname.toLatin1().constData(), file.errorString().toLatin1().constData());
-        return;
+        return false;
     }
     file.write(data);
+    return true;
 }
 
-void WriteFile(const QString &fname, const QString &data)
+bool WriteFile(const QString &fname, const QString &data, bool binary)
 {
     QByteArray a;
     a.append(data);
-    WriteFile(fname, a);
+    return WriteFile(fname, a, binary);
+}
+
+QByteArray ReadFile(const QString &fname, bool binary)
+{
+    QByteArray ret;
+    QFile file(fname);
+    if (file.open(binary ? QIODevice::ReadOnly : QIODevice::ReadOnly | QIODevice::Text)) {
+        ret = file.readAll();
+        file.close();
+    }
+    return ret;
 }
