@@ -8,14 +8,14 @@
 #include "VdomCore/vapplicationservice.h"
 #include "VdomCore/vrestreply.h"
 #include <QUuid>
-#include <QFile>
 #include <QFileInfo>
 #include <QRegExp>
 #include <QXmlStreamReader>
 
 #define OBJ_ID "API"
 #define WYSIWYG_ACTION "wysiwyg"
-#define RES_ACTION "get_resources"
+#define GET_RES_ACTION "get_resources"
+#define PUT_RES_ACTION "save_resources"
 
 #define RESOURCE "resource"
 
@@ -114,6 +114,12 @@ void WysiwygEditor::setContent(const QString &content)
     }
 }
 
+QString WysiwygEditor::getContent() const
+{
+    QStringList r, e;
+    return getContent(r, e);
+}
+
 QString WysiwygEditor::getContent(QStringList &res) const
 {
     QStringList e;
@@ -126,6 +132,51 @@ QString WysiwygEditor::getContent(QStringList &res, QStringList &err) const
     err = errors;
     return vdomxmlstr;
     //return designer->getContent();
+}
+
+void WysiwygEditor::saveResources() const
+{
+    if (resources.isEmpty())
+        return;
+    VRestReply *r = service->restApiCall2(serverAddr, appId, OBJ_ID, PUT_RES_ACTION, makeSaveResRequest());
+    connect(r, SIGNAL(finished(VRestReply*)), this, SLOT(onSaveResourcesReply(VRestReply*)));
+}
+
+// Format:
+// <file_path>\n<content_b64>\n<file_path>\n<content_b64>\n...
+QString WysiwygEditor::makeSaveResRequest() const
+{
+    QStringList ret;
+    for (QStringList::const_iterator i=resources.begin(); i!=resources.end(); i++) {
+        ret.append(*i);
+        ret.append(QString(ReadFile(*i, true).toBase64()));
+    }
+    return ret.join("\n");
+}
+
+// Format:
+// <file_path>\n<id>\n<file_path>\n<id>\n...
+void WysiwygEditor::processSaveResourcesReply(const QString &r)
+{
+    QString v = vdomxmlstr;
+    QStringList p = r.split("\n");
+    int idx = 0;
+    QString path;
+    for (QStringList::const_iterator i=p.begin(); i!=p.end(); i++, idx++)
+        if (idx % 2) v.replace(path, *i);
+        else path = *i;
+    if (p.size() > 1)
+        setContent(v);
+}
+
+void WysiwygEditor::onSaveResourcesReply(VRestReply *r)
+{
+    if (r->isSuccess()) {
+        QString res = r->getResponseText();
+        processSaveResourcesReply(res);
+    }
+    disconnect(r, SIGNAL(finished(VRestReply*)), this, SLOT(onSaveResourcesReply(VRestReply*)));
+    r->deleteLater();
 }
 
 void WysiwygEditor::widgetManaged(QWidget *w)
@@ -146,7 +197,7 @@ void WysiwygEditor::changed()
     VdomXmlItem newVdomXml = ParseVdomxml(newVdomxmlStr);
     if (*vdomxml != newVdomXml) {
         const VdomXmlItem *d = newVdomXml.firstDiff(*vdomxml);
-        if (d) {
+        if (d && !d->isEmpty()) {
 //            qDebug("==================");
 //            qDebug("Old: %s", vdomxmlstr.toLatin1().constData());
 //            qDebug("New: %s", newVdomxmlStr.toLatin1().constData());
@@ -175,13 +226,7 @@ void WysiwygEditor::sendResources(const QMap<QString, QByteArray> &res) const
 void WysiwygEditor::sendResource(const QString &id, const QByteArray &content) const
 {
     Q_ASSERT(client);
-    QString path = getResourcePath(id);
-    QFile file(path);
-    if (!file.open(QIODevice::WriteOnly)) {
-        qDebug("Can't open file \'%s\': %s", path.toLatin1().constData(), file.errorString().toLatin1().constData());
-        return;
-    }
-    file.write(content);
+    WriteFile(getResourcePath(id), content, true);
     client->send("update");
 }
 
@@ -217,9 +262,6 @@ void WysiwygEditor::sendWysiwygData(const QString &wysiwyg) const
 
 void WysiwygEditor::onClientConnect()
 {
-    // display wysiwyg of initial form
-    QStringList r, e;
-    queryWysiwyg(getContent(r, e));
 }
 
 void WysiwygEditor::queryWysiwyg(const QString &vdomxml) const
@@ -241,7 +283,7 @@ void WysiwygEditor::onWysiwygReply(VRestReply *r)
 
 void WysiwygEditor::queryResources(const QStringList &res) const
 {
-    VRestReply *r = service->restApiCall2(serverAddr, appId, OBJ_ID, RES_ACTION, res.join(","));
+    VRestReply *r = service->restApiCall2(serverAddr, appId, OBJ_ID, GET_RES_ACTION, res.join(","));
     connect(r, SIGNAL(finished(VRestReply*)), this, SLOT(onResourcesReply(VRestReply*)));
 }
 
@@ -256,6 +298,8 @@ void WysiwygEditor::onResourcesReply(VRestReply *r)
     r->deleteLater();
 }
 
+// Format:
+// <Resources> <Resource id="_id_"> _b64_content_ </Resource> ... </Resources>
 void WysiwygEditor::processResourcesReply(const QString &r) const
 {
     QXmlStreamReader xml(r);

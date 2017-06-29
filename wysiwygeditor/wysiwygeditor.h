@@ -27,8 +27,10 @@ public:
                                 const QString &resourcePath = QString());
 
     Q_INVOKABLE void setContent(const QString &content = QString());
+    Q_INVOKABLE QString getContent() const;
     Q_INVOKABLE QString getContent(QStringList &resources) const;
     Q_INVOKABLE QString getContent(QStringList &resources, QStringList &errors) const;
+    Q_INVOKABLE void saveResources() const;
 
     Q_INVOKABLE QWidget* widgetBox() const;
     Q_INVOKABLE QWidget* form() const;
@@ -55,11 +57,14 @@ private:
     void queryWysiwyg(const QString &vdomxml) const;
     void queryResources(const QStringList &res) const;
     void processResourcesReply(const QString &r) const;
+    void processSaveResourcesReply(const QString &r);
+    QString makeSaveResRequest() const;
 
 private slots:
     void onClientConnect();
     void onWysiwygReply(VRestReply*);
     void onResourcesReply(VRestReply*);
+    void onSaveResourcesReply(VRestReply*);
 
 private:
     Designer *designer;
