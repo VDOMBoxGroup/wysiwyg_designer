@@ -1,0 +1,81 @@
+        Qt Designer based WYSIWYG editor API
+
+The editor interface is implemented by WysiwygEditor class (wysiwygeditor.h).
+
+To create the editor instance use the contructor:
+
+WysiwygEditor(const QString &server, const QString &app);
+    - server is the address of the VDOM server the editor will connect to (may contain
+    port number and protocol prefix);
+    - app is the ID of the application the editor will work with.
+    The application must contain the API top level container with the following actions
+    implemented: wysiwyg, get_resources and save_resources. The source code can be found
+    under /actions.
+
+After creation the editor must be initialized with the following method:
+
+void initialize(QWidget *parent);
+    - parent is the editor's parent widget.
+
+The it's required to set content of the editor with the following method:
+
+void setContent(const QString &content = QString());
+    - content is a VDOMXML string; content may be omitted, in that case it will set a
+    default content (empty container object).
+
+After that the editor is fully operational. The editor UI consists of four widgets:
+widget box - represents the list of available VDOM objects;
+form - the workspace;
+object inspector - shows current object tree;
+property editor - displays and allows to edit selected object's attributes.
+
+The following methods return widgets of the above UI parts:
+
+QWidget* widgetBox();
+QWidget* form();
+QWidget* objectInspector();
+QWidget* propertyEditor();
+
+Caller is to arrange those widgets into layouts.
+
+To get current content of the editor call one of the following methods:
+
+QString getContent();
+    Returns current VDOMXML content.
+
+QString getContent(QStringList &resources);
+    Same as above plus also fills resources parameter with the list of
+    used local resources (paths) such as images, if any.
+
+QString getContent(QStringList &resources, QStringList &errors);
+    Same as above plus also fills errors parameter with the list of errors
+    found in the current state of the workspace, if any. Errors concern the
+    validity of object tree, since there are restrictions on placing some
+    objects into specific containers.
+
+There is also a method to upload all local resources that are currently used
+by the object structure to the VDOM server. This method should be called when
+the result of work needs to be saved.
+
+void saveResources();
+
+        Integration with VDOM Application launcher
+
+VDOM Application launcher has integrated WYSIWYG editor which is accessible
+under name vdom.wysiwyg.
+
+Here is a sample code of initializing the editor:
+                                                 
+vdom.wysiwyg.initialize(parent); // parent is a parent widget
+vdom.wysiwyg.setContent();
+
+wb = vdom.wysiwyg.widgetBox();
+fo = vdom.wysiwyg.form();
+oi = vdom.wysiwyg.objectInspector();
+pe = vdom.wysiwyg.propertyEditor();
+
+// get content
+c = vdom.wysiwyg.getContent();
+
+// save resources
+vdom.wysiwyg.saveResources();
