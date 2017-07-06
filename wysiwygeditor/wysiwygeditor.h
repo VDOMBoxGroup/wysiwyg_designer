@@ -54,11 +54,13 @@ private:
     void sendWysiwygData(const QString &wysiwyg) const;
     void sendResources(const QMap<QString, QByteArray> &res) const;
     void sendResource(const QString &id, const QByteArray &content) const;
-    void queryWysiwyg(const QString &vdomxml) const;
+    void queryWysiwyg(const QString &vdomxml);
     void queryResources(const QStringList &res) const;
     void processResourcesReply(const QString &r) const;
     void processSaveResourcesReply(const QString &r);
     QString makeSaveResRequest() const;
+    void sendUpdate() const;
+    void sendErrorObjects() const;
 
 private slots:
     void onClientConnect();
@@ -73,10 +75,13 @@ private:
     VdomXmlItem *vdomxml;
     QStringList resources;
     QStringList errors;
+    QStringList errorObjects;
     QString resPath;
     QString serverAddr;
     QString appId;
     const VApplicationService *service;
+    int requestId;
+    int responseId;
 
     Q_DISABLE_COPY(WysiwygEditor)
 };

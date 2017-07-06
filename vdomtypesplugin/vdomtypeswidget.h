@@ -17,6 +17,7 @@ public:
     void setVdomType(const QSharedPointer<VdomTypeInfo> &typeInfo) { vdomType = typeInfo; }
     const QSharedPointer<VdomTypeInfo>& getVdomType() const { return vdomType; }
     void setWysiwyg(const WItem &w);
+    void setError();
     void updateWysiwyg();
     void updateZindex();
     int zindex() { return globalZindex; }
@@ -28,12 +29,15 @@ private:
     void removeChildWidgets();
     void removeChild(QWidget*);
     void createChildWidgets(QWidget *parent, const WItem &w);
+    void drawEmpty();
+    void drawError();
 
 private:
     QSharedPointer<VdomTypeInfo> vdomType;
     WItem wysiwyg;
     int baseZindex;
     int globalZindex;
+    bool error;
 };
 
 #endif // VDOMTYPESWIDGET_H

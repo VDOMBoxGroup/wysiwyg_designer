@@ -146,7 +146,7 @@ void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
 
 void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output,
                         const QString &parentTypeName, QStringList &resources,
-                        QStringList &errors)
+                        QStringList &errors, QStringList &errorObjects)
 {
     QMap<QString, QString> longProperties;
 
@@ -165,6 +165,7 @@ void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output,
     if (!parentTypeName.isEmpty() && !type.containers.contains(parentTypeName)) {
         errors.append(QString("Object \'%1\' of type \'%2\' can't be placed inside \'%3\'")
                       .arg(objName).arg(capitalize(typeName)).arg(capitalize(parentTypeName)));
+        errorObjects.append(objName);
         input.skipCurrentElement();
         return;
     }
@@ -176,7 +177,7 @@ void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output,
         QXmlStreamReader::TokenType token = input.readNext();
         if (token == QXmlStreamReader::StartElement) {
             if (equals(input, WIDGET))
-                widgetToVdomobject(input, output, typeName, resources, errors);
+                widgetToVdomobject(input, output, typeName, resources, errors, errorObjects);
             else if (equals(input, PROPERTY))
                 vdomobjectProperty(input, output, longProperties, type, resources);
         } else if (token == QXmlStreamReader::EndElement && equals(input, WIDGET))
@@ -188,7 +189,7 @@ void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output,
     output.writeEndElement();
 }
 
-QString QmlToVdomxml(const QString &qml, QStringList &resources, QStringList &errors)
+QString QmlToVdomxml(const QString &qml, QStringList &resources, QStringList &errors, QStringList &errorObjects)
 {
     QXmlStreamReader input(qml);
 
@@ -200,10 +201,16 @@ QString QmlToVdomxml(const QString &qml, QStringList &resources, QStringList &er
     while (!input.atEnd()) {
         input.readNextStartElement();
         if (input.tokenType() == QXmlStreamReader::StartElement && equals(input, WIDGET))
-            widgetToVdomobject(input, output, "", resources, errors);
+            widgetToVdomobject(input, output, "", resources, errors, errorObjects);
     }
 
     return QString(buffer.buffer()).trimmed();
+}
+
+QString QmlToVdomxml(const QString &qml, QStringList &resources, QStringList &errors)
+{
+    QStringList o;
+    return QmlToVdomxml(qml, resources, errors, o);
 }
 
 QString QmlToVdomxml(const QString &qml, QStringList &resources)

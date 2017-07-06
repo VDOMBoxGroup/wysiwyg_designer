@@ -252,6 +252,13 @@ void VdomTypesCollection::onWysiwyg(const QString &wysiwyg)
         }
         UpdateSelection(core);
         return;
+    } else if (wysiwyg.startsWith("error")) {
+        QObject *obj = FindWidget(core->formWindowManager()->activeFormWindow()->mainContainer(), wysiwyg.split(" ").last());
+        if (obj) {
+            VdomTypesWidget *tw = qobject_cast<VdomTypesWidget*>(obj);
+            if (tw) tw->setError();
+        }
+        return;
     }
 
     bool changed = false;

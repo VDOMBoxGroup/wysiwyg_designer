@@ -6,6 +6,7 @@
 
 QString QmlToVdomxml(const QString &qml, QStringList &resources);
 QString QmlToVdomxml(const QString &qml, QStringList &resources, QStringList &errors);
+QString QmlToVdomxml(const QString &qml, QStringList &resources, QStringList &errors, QStringList &errorObjects);
 QString VdomxmlToQml(const QString &vdomxml);
 
 const QMap<QString, VdomTypeInfo>& GetVdomTypes();

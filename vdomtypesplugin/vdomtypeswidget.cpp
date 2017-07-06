@@ -17,15 +17,25 @@ VdomTypesWidget::VdomTypesWidget(QWidget *parent)
     : QWidget(parent)
 {
     baseZindex = globalZindex = 0;
+    error = false;
 }
 
 void VdomTypesWidget::setWysiwyg(const WItem &w)
 {
     //qDebug("Object \'%s\' set wysiwyg \'%s\'", objectName().toLatin1().constData(), w.name.toLatin1().constData());
+    error = false;
     wysiwyg = w;
     baseZindex = w.intAttr("zindex");
     removeChildWidgets();
     createChildWidgets(this, wysiwyg);
+    update();
+}
+
+void VdomTypesWidget::setError()
+{
+    error = true;
+    wysiwyg = WItem();
+    removeChildWidgets();
     update();
 }
 
@@ -68,14 +78,42 @@ void VdomTypesWidget::createChildWidgets(QWidget *parent, const WItem &w)
 
 void VdomTypesWidget::paintEvent(QPaintEvent*)
 {
-    if (wysiwyg.isEmpty()) {
-        QPainter painter(this);
-        painter.setPen(Qt::DashLine);
-        painter.drawRect(0, 0, width()-1, height()-1);
-        painter.drawText(2, 12, vdomType->displayName + "::" + objectName());
-        QPixmap p = vdomType->icon.pixmap(100);
-        painter.drawPixmap((rect().width() - p.width()) / 2, (rect().height() - p.height()) / 2, p);
-    }
+    if (error)
+        drawError();
+    else if (wysiwyg.isEmpty())
+        drawEmpty();
+}
+
+void VdomTypesWidget::drawEmpty()
+{
+    QPainter painter(this);
+    painter.setPen(Qt::DashLine);
+    painter.drawRect(0, 0, width()-1, height()-1);
+    painter.drawText(2, 12, vdomType->displayName + "::" + objectName());
+    QPixmap p = vdomType->icon.pixmap(100);
+    painter.drawPixmap((rect().width() - p.width()) / 2, (rect().height() - p.height()) / 2, p);
+}
+
+void VdomTypesWidget::drawError()
+{
+    QPainter painter(this);
+    QPixmap p = vdomType->icon.pixmap(40);
+    painter.drawPixmap(3, 3, p);
+    QPen pen;
+    pen.setStyle(Qt::SolidLine);
+    pen.setColor(Qt::red);
+    pen.setWidth(3);
+    painter.setPen(pen);
+    painter.drawRect(1, 1, width()-3, height()-3);
+    painter.setPen(Qt::black);
+    QRect r(p.width() + 5, 3, width() - p.width() - 5, p.height());
+    painter.drawText(r, Qt::AlignCenter, vdomType->displayName);
+    r = rect();
+    r.setLeft(3);
+    r.setRight(r.right() - 3);
+    r.setBottom(r.bottom() - 3);
+    r.setTop(p.height() + 5);
+    painter.drawText(r, Qt::AlignCenter | Qt::TextWordWrap, "Incorrect parent container type.\nSupported: " + vdomType->containers.join(", "));
 }
 
 void VdomTypesWidget::updateZindex()

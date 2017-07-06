@@ -38,12 +38,11 @@ static const QString defaultContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?
 " <connections/>"
 "</ui>";
 
-WysiwygEditor::WysiwygEditor(const QString &server, const QString &app) : designer(NULL), client(NULL)
+WysiwygEditor::WysiwygEditor(const QString &server, const QString &app) :
+    designer(NULL), client(NULL), serverAddr(server), appId(app), requestId(0), responseId(0)
 {
     vdomxml = new VdomXmlItem();
     service = new VApplicationService();
-    serverAddr = server;
-    appId = app;
 }
 
 WysiwygEditor::~WysiwygEditor()
@@ -193,7 +192,8 @@ void WysiwygEditor::changed()
 {
     resources.clear();
     errors.clear();
-    QString newVdomxmlStr = QmlToVdomxml(designer->getContent(), resources, errors);
+    errorObjects.clear();
+    QString newVdomxmlStr = QmlToVdomxml(designer->getContent(), resources, errors, errorObjects);
     VdomXmlItem newVdomXml = ParseVdomxml(newVdomxmlStr);
     if (*vdomxml != newVdomXml) {
         const VdomXmlItem *d = newVdomXml.firstDiff(*vdomxml);
@@ -207,6 +207,7 @@ void WysiwygEditor::changed()
             queryWysiwyg(d->getVdomxml(true));
         }
     }
+    sendErrorObjects();
     vdomxmlstr = newVdomxmlStr;
     *vdomxml = newVdomXml;
     emit modelChanged();
@@ -227,7 +228,7 @@ void WysiwygEditor::sendResource(const QString &id, const QByteArray &content) c
 {
     Q_ASSERT(client);
     WriteFile(getResourcePath(id), content, true);
-    client->send("update");
+    sendUpdate();
 }
 
 QString WysiwygEditor::getResourcePath(const QString &id) const
@@ -264,18 +265,26 @@ void WysiwygEditor::onClientConnect()
 {
 }
 
-void WysiwygEditor::queryWysiwyg(const QString &vdomxml) const
+void WysiwygEditor::queryWysiwyg(const QString &vdomxml)
 {
-    VRestReply *r = service->restApiCall2(serverAddr, appId, OBJ_ID, WYSIWYG_ACTION, vdomxml);
+    int id = ++requestId;
+    QString request = QString::number(id) + " " + vdomxml;
+    VRestReply *r = service->restApiCall2(serverAddr, appId, OBJ_ID, WYSIWYG_ACTION, request);
     connect(r, SIGNAL(finished(VRestReply*)), this, SLOT(onWysiwygReply(VRestReply*)));
 }
 
 void WysiwygEditor::onWysiwygReply(VRestReply *r)
 {
     if (r->isSuccess()) {
-        QString wysiwyg = r->getResponseText();
-        qDebug(QString("Got: %1").arg(wysiwyg).toLatin1().constData());
-        sendWysiwygData(wysiwyg);
+        QString response = r->getResponseText();
+        QString id = response.section(" ", 0, 0);
+        QString wysiwyg = response.section(" ", 1);
+        int _id = id.toInt();
+        if (_id > responseId) {
+            responseId = _id;
+            sendWysiwygData(wysiwyg);
+            sendErrorObjects();
+        }
     }
     disconnect(r, SIGNAL(finished(VRestReply*)), this, SLOT(onWysiwygReply(VRestReply*)));
     r->deleteLater();
@@ -315,4 +324,15 @@ void WysiwygEditor::processResourcesReply(const QString &r) const
             }
         }
     }
+}
+
+void WysiwygEditor::sendUpdate() const
+{
+    client->send("update");
+}
+
+void WysiwygEditor::sendErrorObjects() const
+{
+    for (QStringList::const_iterator i=errorObjects.begin(); i!=errorObjects.end(); i++)
+        client->send("error " + *i);
 }
