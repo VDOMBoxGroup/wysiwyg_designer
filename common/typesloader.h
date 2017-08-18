@@ -44,6 +44,7 @@ public:
     QString category;
     QString container;
     QStringList containers;
+    QString renderType;
     QString iconId;
     QIcon icon;
     QMap<QString, AttributeInfo> attributes;

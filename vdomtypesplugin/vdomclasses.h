@@ -207,6 +207,14 @@ public:
     static VDOMWidget* create(QWidget *parent) { return new Flashanimation(parent); }
 };
 
+class Flexcontainer: public VDOMWidget
+{
+    Q_OBJECT
+public:
+    Flexcontainer(QWidget *parent) : VDOMWidget(parent) {}
+    static VDOMWidget* create(QWidget *parent) { return new Flexcontainer(parent); }
+};
+
 class Flot: public VDOMWidget
 {
     Q_OBJECT
@@ -697,6 +705,7 @@ static QMap<QString, FactoryFunction> makeFactory()
     f["dynobjectview"] = Dynobjectview::create;
     f["editableresource"] = Editableresource::create;
     f["flashanimation"] = Flashanimation::create;
+    f["flexcontainer"] = Flexcontainer::create;
     f["flot"] = Flot::create;
     f["form"] = Form::create;
     f["formbutton"] = Formbutton::create;

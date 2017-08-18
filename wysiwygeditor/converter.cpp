@@ -161,8 +161,13 @@ void widgetToVdomobject(QXmlStreamReader &input, QXmlStreamWriter &output,
 
     QString objName = attr(input, "name");
 
+    QString parentRenderType;
+    if (!parentTypeName.isEmpty() && types.contains(parentTypeName))
+        parentRenderType = types[parentTypeName].renderType;
+
     const VdomTypeInfo &type = types[typeName];
-    if (!parentTypeName.isEmpty() && !type.containers.contains(parentTypeName)) {
+    if (!parentTypeName.isEmpty() && !type.containers.contains(parentTypeName)
+        && !type.containers.contains(parentRenderType)) {
         errors.append(QString("Object \'%1\' of type \'%2\' can't be placed inside \'%3\'")
                       .arg(objName).arg(capitalize(typeName)).arg(capitalize(parentTypeName)));
         errorObjects.append(objName);

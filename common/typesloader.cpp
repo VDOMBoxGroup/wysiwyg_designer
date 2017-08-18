@@ -364,8 +364,9 @@ void LoadInformation(QXmlStreamReader &xml, VdomTypeInfo &ret)
             else if (equals(xml, "displayname")) ret.displayName = get(xml);
             else if (equals(xml, "category")) ret.category = get(xml);
             else if (equals(xml, "container")) ret.container = get(xml);
+            else if (equals(xml, "rendertype")) ret.renderType = get(xml);
             else if (equals(xml, "containers")) {
-                ret.containers = get(xml).split(",");
+                ret.containers = get(xml).split(",", QString::SkipEmptyParts);
                 for (QStringList::iterator i=ret.containers.begin(); i!=ret.containers.end(); i++)
                     *i = i->trimmed();
             } else if (equals(xml, "icon")) ret.iconId = GetResId(get(xml));

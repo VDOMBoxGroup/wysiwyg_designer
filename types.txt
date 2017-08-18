@@ -23,6 +23,7 @@ dynamicvdom
 dynobjectview
 editableresource
 flashanimation
+flexcontainer
 flot
 form
 formbutton
