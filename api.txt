@@ -17,7 +17,7 @@ After creation the editor must be initialized with the following method:
 void initialize(QWidget *parent);
     - parent is the editor's parent widget.
 
-The it's required to set content of the editor with the following method:
+It's required to set content of the editor with the following method:
 
 void setContent(const QString &content = QString());
     - content is a VDOMXML string; content may be omitted, in that case it will set a
