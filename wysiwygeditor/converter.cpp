@@ -270,14 +270,14 @@ void widgetGeometry(QXmlStreamReader &input, QXmlStreamWriter &output)
     output.writeEndElement();
 }
 
-void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<QString, bool> &customWidgets)
+bool vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<QString, bool> &customWidgets)
 {
     const QMap<QString, VdomTypeInfo> &types = GetVdomTypes();
 
     QString typeName = input.name().toString().toLower();
     if (!types.contains(typeName)) {
         input.skipCurrentElement();
-        return;
+        return false;
     }
 
     const VdomTypeInfo &type = types[typeName];
@@ -315,6 +315,7 @@ void vdomobjectToWidget(QXmlStreamReader &input, QXmlStreamWriter &output, QMap<
     }
 
     output.writeEndElement();
+    return true;
 }
 
 void writeCustomWidgets(QXmlStreamWriter &output, const QMap<QString, bool> &customWidgets)
@@ -334,6 +335,7 @@ void writeCustomWidgets(QXmlStreamWriter &output, const QMap<QString, bool> &cus
 
 QString VdomxmlToQml(const QString &vdomxml)
 {
+    bool haveWidgets = false;
     QXmlStreamReader input(vdomxml);
 
     QBuffer buffer;
@@ -348,13 +350,17 @@ QString VdomxmlToQml(const QString &vdomxml)
 
     while (!input.atEnd()) {
         input.readNextStartElement();
-        if (input.tokenType() == QXmlStreamReader::StartElement)
-            vdomobjectToWidget(input, output, customWidgets);
+        if (input.tokenType() == QXmlStreamReader::StartElement) {
+            if (vdomobjectToWidget(input, output, customWidgets))
+                haveWidgets = true;
+        }
     }
 
     writeCustomWidgets(output, customWidgets);
+    if (!customWidgets.isEmpty())
+        haveWidgets = true;
 
     output.writeEndElement();
     output.writeEndDocument();
-    return QString(buffer.buffer()).trimmed();
+    return haveWidgets ? QString(buffer.buffer()).trimmed() : QString();
 }

@@ -19,9 +19,10 @@ void initialize(QWidget *parent);
 
 The it's required to set content of the editor with the following method:
 
-void setContent(const QString &content = QString());
+bool setContent(const QString &content = QString());
     - content is a VDOMXML string; content may be omitted, in that case it will set a
     default content (empty container object).
+    Returns true if content was set successfully, otherwise false.
 
 After that the editor is fully operational. The editor UI consists of four widgets:
 widget box - represents the list of available VDOM objects;

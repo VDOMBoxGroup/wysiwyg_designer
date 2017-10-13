@@ -26,7 +26,7 @@ public:
                                 const QString &pluginPath = QString(),
                                 const QString &resourcePath = QString());
 
-    Q_INVOKABLE void setContent(const QString &content = QString());
+    Q_INVOKABLE bool setContent(const QString &content = QString());
     Q_INVOKABLE QString getContent() const;
     Q_INVOKABLE QString getContent(QStringList &resources) const;
     Q_INVOKABLE QString getContent(QStringList &resources, QStringList &errors) const;

@@ -102,15 +102,22 @@ QWidget* WysiwygEditor::propertyEditor() const
     return designer->propertyEditor();
 }
 
-void WysiwygEditor::setContent(const QString &content)
+bool WysiwygEditor::setContent(const QString &content)
 {
     Q_ASSERT(designer);
     if (!content.isEmpty()) {
-        designer->setContent(VdomxmlToQml(content));
+        QString converted = VdomxmlToQml(content);
+        if (!converted.isEmpty()) {
+            designer->setContent(converted);
+        } else {
+            designer->setContent(defaultContent);
+            return false;
+        }
         //qDebug(vdomxmlToQml(content).toLatin1().constData());
     } else {
         designer->setContent(defaultContent);
     }
+    return true;
 }
 
 QString WysiwygEditor::getContent() const
