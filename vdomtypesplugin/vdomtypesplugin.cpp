@@ -226,7 +226,7 @@ void UpdateTypesWidgets(VdomTypesWidget *top)
         (*i)->updateWysiwyg();
 }
 
-// workaround Designer issue with loost focus
+// workaround Designer issue with lost focus
 void UpdateSelection(QDesignerFormEditorInterface *core)
 {
     QWidget *current = qobject_cast<QWidget*>(core->propertyEditor()->object());
