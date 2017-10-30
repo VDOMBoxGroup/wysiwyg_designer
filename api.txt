@@ -60,6 +60,27 @@ the result of work needs to be saved.
 
 void saveResources();
 
+There are additional methods to get more specific information about the editor
+content.
+
+QString getSelectionName();
+    Returns name of currently selected object.
+
+QString getSelectionType();
+    Returns type of currently selected object.
+
+QMap<QString, QStringList> getE2vdomEvents(const QString &typeName);
+    Returns E2vdom events of the specified type. Returns mapping of 'event name' to
+    the list of parameter names.
+
+QMap<QString, QStringList> getE2vdomActions(const QString &typeName);
+    Returns E2vdom actions of the specified type. Returns mapping of 'action name' to
+    the list of parameter names.
+
+QMap<QString, QString> getObjects();
+    Returns all objects of the workspace in the form of mapping of 'object name' to
+    its 'type name'.
+
         Integration with VDOM Application launcher
 
 VDOM Application launcher has integrated WYSIWYG editor which is accessible
