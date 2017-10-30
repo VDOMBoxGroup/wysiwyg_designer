@@ -2,6 +2,7 @@
 #define DESIGNER_CORE_H
 
 #include <QObject>
+#include <QMap>
 #include "designer.h"
 
 class QWidget;
@@ -29,12 +30,20 @@ public:
     void setContent(const QString &content);
     QString getContent() const;
 
+    QString getSelectionName() const { return selection; }
+    QString getSelectionType() const { return selectionType; }
+    QMap<QString, QString> getObjects() const;
+
+Q_SIGNALS:
+    void selectionChanged(const QString &newSelection, const QString &oldSelection) const;
+
 private slots:
     void formSizeChanged(int w, int h);
     void widgetManaged(QWidget *widget);
     void widgetRemoved(QWidget *widget);
     void changed();
     void propertyChanged(const QString &name, const QVariant &value);
+    void onSelectionChanged();
 
 private:
     void createDesignerCore(QWidget *parent, const QString &widgetsFileName,
@@ -50,6 +59,9 @@ private:
     SharedTools::WidgetHost *widgetHost;
 
     DesignerSignalHandler *signalHandler;
+
+    QString selection;
+    QString selectionType;
 
     Q_DISABLE_COPY(DesignerCore)
 };

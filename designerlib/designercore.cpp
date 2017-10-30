@@ -48,6 +48,7 @@ void DesignerCore::createDesignerCore(QWidget *parent, const QString &widgetsFil
     connect(formWindow, SIGNAL(widgetManaged(QWidget*)), this, SLOT(widgetManaged(QWidget*)));
     connect(formWindow, SIGNAL(widgetRemoved(QWidget*)), this, SLOT(widgetRemoved(QWidget*)));
     connect(formWindow, SIGNAL(changed()), this, SLOT(changed()));
+    connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(onSelectionChanged()));
     connect(core->propertyEditor(), SIGNAL(propertyChanged(const QString&, const QVariant&)),
             this, SLOT(propertyChanged(const QString&, const QVariant&)));
 
@@ -114,6 +115,19 @@ void DesignerCore::propertyChanged(const QString &name, const QVariant &value)
         signalHandler->propertyChanged(*(core->propertyEditor()->object()), name, value);
 }
 
+void DesignerCore::onSelectionChanged()
+{
+    QWidget *current = qobject_cast<QWidget*>(core->propertyEditor()->object());
+    if (current) {
+        QString name = current->objectName();
+        if (name != selection) {
+            emit selectionChanged(name, selection);
+            selection = name;
+            selectionType = current->metaObject()->className();
+        }
+    }
+}
+
 QWidget* DesignerCore::getWidgetBox() const
 {
     return core->widgetBox();
@@ -143,6 +157,20 @@ void DesignerCore::setContent(const QString &content)
 QString DesignerCore::getContent() const
 {
     return formWindow->contents();
+}
+
+QMap<QString, QString> DesignerCore::getObjects() const
+{
+    QMap<QString, QString> ret;
+    QWidget *top = core->formWindowManager()->activeFormWindow()->mainContainer();
+    if (!top->objectName().isEmpty())
+        ret[top->objectName()] = top->metaObject()->className();
+    QList<QWidget*> ch = top->findChildren<QWidget*>();
+    for (QList<QWidget*>::iterator i=ch.begin(); i!=ch.end(); i++) {
+        if (!(*i)->objectName().isEmpty())
+            ret[(*i)->objectName()] = (*i)->metaObject()->className();
+    }
+    return ret;
 }
 
 void DesignerCore::hidePropertyEditorButtons(QObject *editor)

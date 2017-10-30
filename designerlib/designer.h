@@ -1,7 +1,9 @@
 #ifndef DESIGNER_H
 #define DESIGNER_H
 
+#include <QObject>
 #include <QVariant>
+#include <QMap>
 
 class QWidget;
 class DesignerCore;
@@ -15,8 +17,9 @@ public:
     virtual void propertyChanged(const QObject &object, const QString &name, const QVariant &value) = 0;
 };
 
-class Designer
+class Designer: public QObject
 {
+    Q_OBJECT
 public:
     explicit Designer();
     virtual ~Designer();
@@ -31,6 +34,13 @@ public:
     QWidget* form() const;
     QWidget* objectInspector() const;
     QWidget* propertyEditor() const;
+
+    QString getSelectionName() const;
+    QString getSelectionType() const;
+    QMap<QString, QString> getObjects() const;
+
+Q_SIGNALS:
+    void selectionChanged(const QString &newSelection, const QString &oldSelection) const;
 
 private:
     DesignerCore *core;
