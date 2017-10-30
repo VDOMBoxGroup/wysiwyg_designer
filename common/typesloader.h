@@ -49,6 +49,8 @@ public:
     QIcon icon;
     QMap<QString, AttributeInfo> attributes;
     QMap<QString, QMap<QString, QString> > lang;
+    QMap<QString, QStringList> e2vdomEvents;    // event name : list of parameter names
+    QMap<QString, QStringList> e2vdomActions;   // action name : list of parameter names
 
     bool isContainer() const;
     bool isTopContainer() const;

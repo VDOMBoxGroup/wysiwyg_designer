@@ -19,6 +19,12 @@
 #define CODE "Code"
 #define ID "ID"
 #define EN_US "en_us"
+#define E2VDOM "e2vdom"
+#define EVENTS "events"
+#define EVENT "event"
+#define PARAMETER "parameter"
+#define ACTIONS "actions"
+#define ACTION "action"
 
 static QRegExp langRegExp("#Lang\\(([^\\)]+)\\)");
 static QRegExp resRegExp("#Res\\(([^\\)]+)\\)");
@@ -334,6 +340,82 @@ void LoadAttributes(QXmlStreamReader &xml, VdomTypeInfo &ret)
     }
 }
 
+void LoadEvent(QXmlStreamReader &xml, VdomTypeInfo &ret)
+{
+    QString name = attr(xml, "Name");
+    QStringList param;
+    xml.readNext();
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, EVENT))) {
+        if (xml.tokenType() == QXmlStreamReader::StartElement) {
+            if (equals(xml, PARAMETER)) {
+                QString p = attr(xml, "Name");
+                if (!p.isEmpty())
+                    param.append(p);
+            }
+        }
+        xml.readNext();
+    }
+    if (!name.isEmpty())
+        ret.e2vdomEvents[name] = param;
+}
+
+void LoadEvents(QXmlStreamReader &xml, VdomTypeInfo &ret)
+{
+    xml.readNext();
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, EVENTS))) {
+        if (xml.tokenType() == QXmlStreamReader::StartElement) {
+            if (equals(xml, EVENT))
+                LoadEvent(xml, ret);
+        }
+        xml.readNext();
+    }
+}
+
+void LoadAction(QXmlStreamReader &xml, VdomTypeInfo &ret)
+{
+    QString name = attr(xml, "MethodName");
+    QStringList param;
+    xml.readNext();
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, ACTION))) {
+        if (xml.tokenType() == QXmlStreamReader::StartElement) {
+            if (equals(xml, PARAMETER)) {
+                QString p = attr(xml, "ScriptName");
+                if (!p.isEmpty())
+                    param.append(p);
+            }
+        }
+        xml.readNext();
+    }
+    if (!name.isEmpty())
+        ret.e2vdomActions[name] = param;
+}
+
+void LoadActions(QXmlStreamReader &xml, VdomTypeInfo &ret)
+{
+    xml.readNext();
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, ACTIONS))) {
+        if (xml.tokenType() == QXmlStreamReader::StartElement) {
+            if (equals(xml, ACTION))
+                LoadAction(xml, ret);
+        }
+        xml.readNext();
+    }
+}
+
+void LoadE2vdom(QXmlStreamReader &xml, VdomTypeInfo &ret)
+{
+    xml.readNext();
+    while (!xml.atEnd() && !(xml.tokenType() == QXmlStreamReader::EndElement && equals(xml, E2VDOM))) {
+        if (xml.tokenType() == QXmlStreamReader::StartElement) {
+            if (equals(xml, EVENTS))
+                LoadEvents(xml, ret);
+            else if (equals(xml, ACTIONS))
+                LoadActions(xml, ret);
+        }
+        xml.readNext();
+    }
+}
+
 void LoadResource(QXmlStreamReader &xml, VdomTypeInfo &ret)
 {
     if (attr(xml, ID) == ret.iconId) {
@@ -389,6 +471,8 @@ VdomTypeInfo LoadType(QXmlStreamReader &xml)
                 ret.lang = LoadLanguages(xml);
             else if (equals(xml, RESOURCES))
                 LoadResources(xml, ret);
+            else if (equals(xml, E2VDOM))
+                LoadE2vdom(xml, ret);
         }
         xml.readNext();
     }
