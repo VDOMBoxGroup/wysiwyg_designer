@@ -21,6 +21,7 @@ public:
 private slots:
     void onChanged();
     void onAttrChanged(const QObject &object, const QString &name, const QVariant &value);
+    void onSelectionChanged(const QString &newSelection, const QString &oldSelection) const;
 
 private:
     void setContent();
