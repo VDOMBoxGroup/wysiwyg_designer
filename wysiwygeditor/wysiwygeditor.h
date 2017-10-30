@@ -37,11 +37,18 @@ public:
     Q_INVOKABLE QWidget* objectInspector() const;
     Q_INVOKABLE QWidget* propertyEditor() const;
 
+    Q_INVOKABLE QString getSelectionName() const;
+    Q_INVOKABLE QString getSelectionType() const;
+    Q_INVOKABLE QMap<QString, QStringList> getE2vdomEvents(const QString &typeName) const;
+    Q_INVOKABLE QMap<QString, QStringList> getE2vdomActions(const QString &typeName) const;
+    Q_INVOKABLE QMap<QString, QString> getObjects() const;
+
 Q_SIGNALS:
     void modelChanged() const;
     void attributeChanged(const QObject &object, const QString &name, const QVariant &value) const;
     void widgetCreated(const QWidget &widget) const;
     void widgetDeleted(const QWidget &widget) const;
+    void selectionChanged(const QString &newSelection, const QString &oldSelection) const;
 
 private:
     void widgetManaged(QWidget*);

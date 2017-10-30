@@ -68,6 +68,7 @@ void WysiwygEditor::initialize(QWidget *parent, const QString &widgetsFileName,
     designer = new Designer();
     designer->initialize(parent, this, widgetsFile,
                          pluginPath.isEmpty() ? DefaultPath(defaultPluginPath) : pluginPath);
+    connect(designer, SIGNAL(selectionChanged(QString, QString)), this, SIGNAL(selectionChanged(QString, QString)));
 
     // load vdom types for converter
     GetVdomTypes();
@@ -100,6 +101,46 @@ QWidget* WysiwygEditor::propertyEditor() const
 {
     Q_ASSERT(designer);
     return designer->propertyEditor();
+}
+
+QString WysiwygEditor::getSelectionName() const
+{
+    Q_ASSERT(designer);
+    return designer->getSelectionName();
+}
+
+QString WysiwygEditor::getSelectionType() const
+{
+    Q_ASSERT(designer);
+    return designer->getSelectionType();
+}
+
+QMap<QString, QStringList> WysiwygEditor::getE2vdomEvents(const QString &typeName) const
+{
+    Q_ASSERT(designer);
+    const QMap<QString, VdomTypeInfo> &types = GetVdomTypes();
+    QMap<QString, VdomTypeInfo>::const_iterator i = types.find(typeName.toLower());
+    if (i != types.end())
+        return i.value().e2vdomEvents;
+    else
+        return QMap<QString, QStringList>();
+}
+
+QMap<QString, QStringList> WysiwygEditor::getE2vdomActions(const QString &typeName) const
+{
+    Q_ASSERT(designer);
+    const QMap<QString, VdomTypeInfo> &types = GetVdomTypes();
+    QMap<QString, VdomTypeInfo>::const_iterator i = types.find(typeName.toLower());
+    if (i != types.end())
+        return i.value().e2vdomActions;
+    else
+        return QMap<QString, QStringList>();
+}
+
+QMap<QString, QString> WysiwygEditor::getObjects() const
+{
+    Q_ASSERT(designer);
+    return designer->getObjects();
 }
 
 bool WysiwygEditor::setContent(const QString &content)
