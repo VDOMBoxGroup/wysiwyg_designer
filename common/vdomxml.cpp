@@ -73,10 +73,13 @@ const VdomXmlItem* VdomXmlItem::firstDiff(const VdomXmlItem &old) const
 void VdomXmlItem::makeVdomxml(QXmlStreamWriter &output, bool includeChildren) const
 {
     QMap<QString, QString> longAttr;
+    QRegExp space_quotes("[\"\\s]");
 
     output.writeStartElement(name.toUpper());
     for (QMap<QString, QString>::const_iterator i=attr.begin(); i!=attr.end(); i++)
-        if (IsLongAttribute(i.value()))
+        if (i.key() != "name"
+            && (IsLongAttribute(i.value())
+                || i.value().contains(space_quotes)))
             longAttr[i.key()] = i.value();
         else
             output.writeAttribute(i.key(), i.value());
