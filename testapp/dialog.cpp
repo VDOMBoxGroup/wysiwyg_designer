@@ -2,10 +2,10 @@
 #include "ui_dialog.h"
 #include <QMessageBox>
 
-#define SERVER_ADDR "localhost:82"
+#define SERVER_ADDR "local.sh.vdombox.ru"
 //#define SERVER_ADDR "10.40.0.169:82"
 //#define SERVER_ADDR "10.40.0.104:3467"
-#define APP_ID "7f459762-e1ba-42d3-a0e1-e74beda2eb85"
+#define APP_ID "dbf4ed0c-969e-4235-98c9-b9b7c84e1b3f"
 
 //"          <Attribute Name=\"htmlcode\"><![CDATA[<TABLE width=\"100%\" height=\"90%\" style=\"border:1px solid #d7dce5;padding:21px 19px;margin-bottom:20px\"><tr><td></td></tr></table>]]]]><![CDATA[>]]></Attribute>"
 
