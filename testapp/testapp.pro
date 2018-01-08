@@ -37,9 +37,19 @@ HEADERS  += dialog.h \
 
 FORMS    += dialog.ui
 
+ROOT = $$PWD/..
+
+LIBS += -L../../vdom/lib -lwysiwygeditor -ldesignerlib
+
 CONFIG(release, debug|release) {
-    LIBS += -L../release -L../../vdomlib/vdom/lib -lwysiwygeditor -ldesignerlib -lQtDesignerComponents -lVdomCore
+    LIBS += -L$$ROOT/build-wysiwygeditor-Qt_4_8_4_4_8_4_openssl_vs2010-Release/release \
+        -L$$ROOT/build-designerlib-Qt_4_8_4_4_8_4_openssl_vs2010-Release/release \
+        -lQtDesignerComponents \
+        -lVdomCore
 }
 CONFIG(debug, debug|release) {
-    LIBS += -L../debug -L../../vdomlib/vdom/lib -lwysiwygeditor -ldesignerlib -lQtDesignerComponentsd -lVdomCored
+    LIBS += -L$$ROOT/build-wysiwygeditor-Qt_4_8_4_4_8_4_openssl_vs2010-Debug/debug \
+        -L$$ROOT/build-designerlib-Qt_4_8_4_4_8_4_openssl_vs2010-Debug/debug \
+        -lQtDesignerComponentsd \
+        -lVdomCored
 }
