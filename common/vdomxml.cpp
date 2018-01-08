@@ -2,6 +2,7 @@
 #include "util.h"
 #include <QXmlStreamReader>
 #include <QBuffer>
+#include <QRegExp>
 
 #define ATTRIBUTE "attribute"
 
@@ -73,16 +74,14 @@ const VdomXmlItem* VdomXmlItem::firstDiff(const VdomXmlItem &old) const
 void VdomXmlItem::makeVdomxml(QXmlStreamWriter &output, bool includeChildren) const
 {
     QMap<QString, QString> longAttr;
-    QRegExp space_quotes("[\"\\s]");
 
     output.writeStartElement(name.toUpper());
-    for (QMap<QString, QString>::const_iterator i=attr.begin(); i!=attr.end(); i++)
-        if (i.key() != "name"
-            && (IsLongAttribute(i.value())
-                || i.value().contains(space_quotes)))
+    for (QMap<QString, QString>::const_iterator i=attr.begin(); i!=attr.end(); i++) {
+        if (IsLongAttribute(i.key(), i.value()))
             longAttr[i.key()] = i.value();
         else
             output.writeAttribute(i.key(), i.value());
+    }
 
     WriteLongAttributes(output, longAttr);
 
@@ -149,6 +148,24 @@ VdomXmlItem ParseVdomxml(const QString &s)
     }
 
     return ret;
+}
+
+
+bool IsLongAttribute(const QString &name, const QString &value)
+{
+    // "name" attribute is always inline
+    if (name.compare("name", Qt::CaseInsensitive) == 0)
+        return false;
+    // long attributes are external
+    if (value.length() > MAX_ATTR_LEN)
+        return true;
+    // can't have spaces, quotes or template matching parts in inline attributes
+    QRegExp forbidden_parts("\'|\"|\\s|" +
+                       QRegExp::escape("{{") + "|" +
+                       QRegExp::escape("}}"));
+    if (forbidden_parts.indexIn(value) != -1)
+        return true;
+    return false;
 }
 
 void WriteAttribute(QXmlStreamWriter &output, const QString &name, const QString &value)

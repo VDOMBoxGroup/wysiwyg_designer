@@ -34,10 +34,7 @@ VdomXmlItem ParseVdomxml(const QString &s);
 
 void WriteAttribute(QXmlStreamWriter &output, const QString &name, const QString &value);
 
-inline bool IsLongAttribute(const QString &value)
-{
-    return (value.length() > MAX_ATTR_LEN);
-}
+bool IsLongAttribute(const QString &name, const QString &value);
 
 void WriteLongAttributes(QXmlStreamWriter &output, const QMap<QString, QString> &attr);
 

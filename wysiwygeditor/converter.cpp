@@ -137,7 +137,7 @@ void vdomobjectProperty(QXmlStreamReader &input, QXmlStreamWriter &output,
             return;
         }
         QString value = readPropertyValue(input, type.attributes[name], resources);
-        if (IsLongAttribute(value))
+        if (IsLongAttribute(name, value))
             longProperties[name] = value;
         else
             output.writeAttribute(name, value);
